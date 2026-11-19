@@ -1884,6 +1884,13 @@ class BirdingHotspotsApp {
             select.append(new Option(`${list.label} (${list.codes.size || list.names.size})`, list.key));
         }
 
+        // Point at the import that unlocks state/county lists
+        if (this.regionLists.length === 0) {
+            const hint = new Option('State, county and ABA lists: use "Import all my eBird data"', '');
+            hint.disabled = true;
+            select.append(hint);
+        }
+
         const saved = storage.getTargetList();
         select.value = [...select.options].some(o => o.value === saved) ? saved : 'imported';
     }
