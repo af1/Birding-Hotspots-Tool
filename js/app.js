@@ -27,6 +27,9 @@ import { computeQuickPicks } from './services/quick-picks.js';
 import { buildRouteShareHash, parseRouteShareHash } from './utils/share-link.js';
 import { errorReporter } from './services/error-reporter.js';
 
+// sessionStorage key for the last results: survives a reload, not a new tab
+const RESULTS_CACHE_KEY = 'birding_last_results';
+
 // Install global error handlers as early as possible
 errorReporter.init();
 
@@ -515,6 +518,7 @@ class BirdingHotspotsApp {
         this.elements.targetList.addEventListener('change', () => {
             storage.setTargetList(this.elements.targetList.value);
             this.updateLifeListCount();
+            this.refreshNewBirdFlags();
         });
         this.populateTargetList();
         this.elements.clearLifeList.addEventListener('click', () => this.handleClearLifeList());
@@ -1708,6 +1712,7 @@ class BirdingHotspotsApp {
             if (result.imported > 0) {
                 this.updateLifeListCount();
                 this.populateTargetList();
+                this.refreshNewBirdFlags();
                 this.showSuccessToast(result.replaced
                     ? `Replaced your list with ${result.imported} species`
                     : `Imported ${result.imported} species to your ${this.getLifeListLabel()}`);
@@ -1805,6 +1810,7 @@ class BirdingHotspotsApp {
         if (this.elements.lifeListLabel) this.elements.lifeListLabel.value = '';
         this.updateLifeListCount();
         this.populateTargetList();
+        this.refreshNewBirdFlags();
         this.showSuccessToast('List cleared');
     }
 
@@ -1869,6 +1875,65 @@ class BirdingHotspotsApp {
     }
 
     /**
+     * Recompute "new bird" flags on results already on screen and redraw,
+     * so changing or importing a list never needs a new search.
+     */
+    refreshNewBirdFlags() {
+        if (!this.currentResults?.hotspots) {
+            return;
+        }
+
+        const region = this.getTargetRegionList();
+        const codes = region ? region.codes : this.lifeListService.getLifeListCodes();
+        const names = region ? region.names : this.lifeListService.getLifeListNames();
+        const hasList = codes.size > 0 || names.size > 0;
+
+        // Same rule as processObservations, plus the region boundary
+        for (const hotspot of this.currentResults.hotspots) {
+            const inRegion = !region || regionContains(region, hotspot);
+            for (const bird of hotspot.birds || []) {
+                const seen = codes.has(bird.speciesCode) || names.has(bird.comName?.toLowerCase());
+                bird.isLifer = hasList && inRegion && !seen;
+            }
+        }
+
+        this.displayResults(this.currentResults);
+        this.cacheResults();
+    }
+
+    /**
+     * Keep the last location results for this tab so a reload can show them
+     * instantly instead of re-running every eBird, routing and weather call.
+     */
+    cacheResults() {
+        try {
+            sessionStorage.setItem(RESULTS_CACHE_KEY, JSON.stringify({ hash: location.hash, results: this.currentResults }));
+        } catch (e) {
+            console.warn('Could not cache results:', e);
+        }
+    }
+
+    /**
+     * Show cached results when they belong to the current URL. Returns true on success.
+     */
+    restoreCachedResults() {
+        try {
+            const cached = JSON.parse(sessionStorage.getItem(RESULTS_CACHE_KEY) || 'null');
+            if (!cached || cached.hash !== location.hash || !cached.results?.hotspots) {
+                return false;
+            }
+            this.currentResults = cached.results;
+            this.currentLocation = cached.results.origin;
+            this.currentSortMethod = cached.results.sortMethod;
+            this.refreshNewBirdFlags();
+            return true;
+        } catch (e) {
+            console.warn('Could not restore cached results:', e);
+            return false;
+        }
+    }
+
+    /**
      * Fill the "Count birds as new to" select: imported list, then region lists broad to narrow
      */
     populateTargetList() {
@@ -1929,6 +1994,7 @@ class BirdingHotspotsApp {
             this.regionLists = loadRegionLists();
             this.populateTargetList();
             this.updateLifeListCount();
+            this.refreshNewBirdFlags();
             this.showSuccessToast(`Built ${labeled.length} lists from ${rows.toLocaleString()} sightings`);
         } catch (err) {
             console.error('eBird data import error:', err);
@@ -2241,6 +2307,11 @@ class BirdingHotspotsApp {
         if (count) {
             const countRadio = document.querySelector(`[name="hotspotsCount"][value="${count}"]`);
             if (countRadio) countRadio.checked = true;
+        }
+
+        // Reload of the same link: reuse this tab's results instead of re-fetching
+        if (this.restoreCachedResults()) {
+            return;
         }
 
         // Auto-trigger search if API key is already saved
@@ -2768,6 +2839,7 @@ class BirdingHotspotsApp {
 
             // Update URL hash for shareable links (location search only)
             this.updateURLHash(origin);
+            this.cacheResults();
 
             this.hideLoading();
 
@@ -2908,6 +2980,9 @@ class BirdingHotspotsApp {
                 name: hotspot.locName,
                 lat: hotspot.lat,
                 lng: hotspot.lng,
+                countryCode: hotspot.countryCode,
+                subnational1Code: hotspot.subnational1Code,
+                subnational2Code: hotspot.subnational2Code,
                 speciesCount: birds.length,
                 address: addrResult.address || 'Address unavailable',
                 distance,
