@@ -3,6 +3,7 @@
  * Uses LocationIQ REST API for geocoding
  */
 import { CONFIG } from '../utils/constants.js';
+import { scheduledFetch } from './request-scheduler.js';
 
 // In-memory cache for reverse geocoding results for the current session.
 // Keyed by 'lat,lng' string to avoid repeated API calls for the same coordinates.
@@ -80,6 +81,27 @@ export async function reverseGeocode(lat, lng, signal) {
         return reverseGeocodeCache.get(cacheKey);
     }
 
+    // Identical lookups already on their way share one request
+    if (inFlightLookups.has(cacheKey)) {
+        return inFlightLookups.get(cacheKey);
+    }
+    const lookup = lookupAddress(lat, lng, signal, cacheKey);
+    inFlightLookups.set(cacheKey, lookup);
+    try {
+        return await lookup;
+    } finally {
+        inFlightLookups.delete(cacheKey);
+    }
+}
+
+// Pending lookups by cache key, so duplicates never hit the network twice
+const inFlightLookups = new Map();
+
+/**
+ * One LocationIQ reverse lookup; caches successes and empty answers.
+ */
+async function lookupAddress(lat, lng, signal, cacheKey) {
+
     const fallback = {
         displayName: `${lat.toFixed(4)}, ${lng.toFixed(4)}`,
         address: 'Address unavailable',
@@ -105,7 +127,7 @@ export async function reverseGeocode(lat, lng, signal) {
         : timeoutController.signal;
 
     try {
-        const response = await fetch(
+        const response = await scheduledFetch(
             `${CONFIG.LOCATIONIQ_BASE}/reverse?${params}`,
             { signal: fetchSignal }
         );

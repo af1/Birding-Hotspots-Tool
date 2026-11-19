@@ -3,6 +3,7 @@
  */
 
 import { CONFIG } from '../utils/constants.js';
+import { scheduledFetch } from './request-scheduler.js';
 
 const OPEN_METEO_BASE = CONFIG.OPEN_METEO_BASE;
 
@@ -306,7 +307,7 @@ export async function getWeatherForLocation(lat, lng, signal) {
     });
 
     try {
-        const response = await fetch(
+        const response = await scheduledFetch(
             `${OPEN_METEO_BASE}?${params}`,
             signal ? { signal } : undefined
         );

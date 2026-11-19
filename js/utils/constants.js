@@ -49,7 +49,6 @@ export const CONFIG = {
         TABLE_URL: 'https://router.project-osrm.org/table/v1/driving',
         TRIP_URL: 'https://router.project-osrm.org/trip/v1/driving',
         TABLE_CHUNK_SIZE: 99,   // public server max table size is 100 (origin + 99)
-        TABLE_PACE_MS: 1000,    // public demo server asks for about 1 request per second
         RETRY_DELAY_MS: 2000    // wait before retrying a failed table chunk once
     },
 

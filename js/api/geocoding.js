@@ -3,6 +3,7 @@
  * Uses LocationIQ REST API for geocoding
  */
 import { CONFIG, ErrorTypes, ErrorMessages } from '../utils/constants.js';
+import { scheduledFetch } from './request-scheduler.js';
 
 // Cache for geocoding results (session-level for performance)
 const geocodeCache = new Map();
@@ -31,7 +32,7 @@ export async function geocodeAddress(address) {
     const timeoutId = setTimeout(() => controller.abort(), CONFIG.GEOCODE_TIMEOUT);
 
     try {
-        const response = await fetch(
+        const response = await scheduledFetch(
             `${CONFIG.LOCATIONIQ_BASE}/search?${params}`,
             { signal: controller.signal }
         );

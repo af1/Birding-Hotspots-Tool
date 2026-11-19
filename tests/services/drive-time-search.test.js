@@ -33,6 +33,10 @@ export async function testGridCoversWholeDisc() {
 
 import { CONFIG } from '../../js/utils/constants.js';
 import { findDriveHotspots } from '../../js/services/drive-time-search.js';
+import { setHostPolicy } from '../../js/api/request-scheduler.js';
+
+// Tests run against a fake OSRM: no pacing needed
+const NO_PACING = { maxConcurrent: 1, intervalMs: 0 };
 
 // Fake OSRM table: every destination is 10 min away, except index 0 of each chunk at 4 h
 function fakeOsrm({ failFirst = false } = {}) {
@@ -58,7 +62,7 @@ function fakeEbird() {
 }
 
 export async function testEveryCandidateGetsADriveTime() {
-    CONFIG.OSRM.TABLE_PACE_MS = 0;
+    setHostPolicy('router.project-osrm.org', NO_PACING);
     const calls = fakeOsrm();
     const { hotspots, unroutable } = await findDriveHotspots(fakeEbird(), ORIGIN, 60);
     const chunks = Math.ceil(500 / CONFIG.OSRM.TABLE_CHUNK_SIZE);
@@ -68,10 +72,13 @@ export async function testEveryCandidateGetsADriveTime() {
 }
 
 export async function testFailedRouteChunkIsRetried() {
-    CONFIG.OSRM.TABLE_PACE_MS = 0;
+    setHostPolicy('router.project-osrm.org', NO_PACING);
     CONFIG.OSRM.RETRY_DELAY_MS = 0;
-    fakeOsrm({ failFirst: true });
-    const { unroutable } = await findDriveHotspots(fakeEbird(), ORIGIN, 60);
+    const calls = fakeOsrm({ failFirst: true });
+    // Fresh origin: the session drive cache must not answer for us
+    const origin = { lat: ORIGIN.lat + 0.0001, lng: ORIGIN.lng };
+    const { unroutable } = await findDriveHotspots(fakeEbird(), origin, 60);
+    assert(calls() > Math.ceil(500 / CONFIG.OSRM.TABLE_CHUNK_SIZE), 'The failed chunk should have been requested again');
     assert(unroutable === 0, `A chunk that fails once should succeed on retry, got ${unroutable} unroutable`);
 }
 
@@ -84,4 +91,11 @@ export async function testThreeHourGridStillCoversDisc() {
         const lng = ORIGIN.lng + (radiusKm * Math.cos(rad)) / (111 * Math.cos(ORIGIN.lat * Math.PI / 180));
         assert(points.some(p => calculateDistance(p.lat, p.lng, lat, lng) <= EBIRD_RADIUS_KM), `Edge uncovered at ${deg}deg`);
     }
+}
+
+export async function testRepeatSearchUsesDriveCache() {
+    setHostPolicy('router.project-osrm.org', NO_PACING);
+    const calls = fakeOsrm();
+    await findDriveHotspots(fakeEbird(), ORIGIN, 60);
+    assert(calls() === 0, `Same origin and hotspots should be fully cached, got ${calls()} OSRM calls`);
 }

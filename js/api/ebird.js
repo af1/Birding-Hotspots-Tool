@@ -2,6 +2,7 @@
  * eBird API client module
  */
 import { CONFIG, ErrorTypes, ErrorMessages } from '../utils/constants.js';
+import { scheduledFetch } from './request-scheduler.js';
 
 /**
  * eBird API client class
@@ -83,7 +84,7 @@ export class EBirdAPI {
                     fetchOptions.signal = this.abortSignal;
                 }
 
-                const response = await fetch(url, fetchOptions);
+                const response = await scheduledFetch(url, fetchOptions);
 
                 if (!response.ok) {
                     if (response.status === 403) {
@@ -134,15 +135,23 @@ export class EBirdAPI {
      */
     async getNearbyHotspots(lat, lng, dist = 50, back = 30) {
         // eBird API wants 2 decimal places for coordinates
-        const data = await this.fetchWithAuth('/ref/hotspot/geo', {
+        const params = {
             lat: lat.toFixed(2),
             lng: lng.toFixed(2),
             dist: Math.min(dist, 50),
             back: Math.min(Math.max(back, 1), 30),
             fmt: 'json'
-        });
+        };
 
-        return data || [];
+        // Re-searching the same area (new sort, list or limit) reuses the answer
+        const cacheKey = `geo:${params.lat}:${params.lng}:${params.dist}:${params.back}`;
+        const cached = this._getCached(cacheKey);
+        if (cached !== undefined) return cached;
+
+        const data = await this.fetchWithAuth('/ref/hotspot/geo', params);
+        const result = data || [];
+        this._setCached(cacheKey, result, 30 * 60 * 1000); // 30-minute TTL
+        return result;
     }
 
     /**

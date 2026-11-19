@@ -4,6 +4,7 @@
  */
 
 import { CONFIG } from '../utils/constants.js';
+import { scheduledFetch } from './request-scheduler.js';
 
 const OSRM_BASE_URL = CONFIG.OSRM.BASE_URL;
 const OSRM_TABLE_URL = CONFIG.OSRM.TABLE_URL;
@@ -22,7 +23,7 @@ export async function getDrivingRoute(originLat, originLng, destLat, destLng, si
         // OSRM expects coordinates as lng,lat
         const url = `${OSRM_BASE_URL}/${originLng},${originLat};${destLng},${destLat}?overview=false`;
 
-        const response = await fetch(url, signal ? { signal } : undefined);
+        const response = await scheduledFetch(url, signal ? { signal } : undefined);
 
         if (!response.ok) {
             return null;
@@ -58,7 +59,7 @@ async function getDrivingDistancesTable(originLat, originLng, destinations, sign
     const coords = [`${originLng},${originLat}`, ...destinations.map(d => `${d.lng},${d.lat}`)];
     const url = `${OSRM_TABLE_URL}/${coords.join(';')}?sources=0&annotations=distance,duration`;
 
-    const response = await fetch(url, signal ? { signal } : undefined);
+    const response = await scheduledFetch(url, signal ? { signal } : undefined);
     if (!response.ok) {
         throw new Error(`OSRM Table API returned ${response.status}`);
     }
@@ -127,7 +128,7 @@ export async function getDrivingRoutes(originLat, originLng, destinations, signa
 
 /**
  * Drive durations from origin to many destinations, chunked to the public
- * OSRM server's table size and paced to its ~1 request/second policy.
+ * OSRM server's table size (the request scheduler paces the calls).
  * A failed chunk is retried once; if it fails again its entries are null.
  * @param {{lat: number, lng: number}} origin
  * @param {Array<{lat: number, lng: number}>} destinations
@@ -136,21 +137,34 @@ export async function getDrivingRoutes(originLat, originLng, destinations, signa
  * @returns {Promise<Array<{distance: number, duration: number}|null>>}
  */
 export async function getDriveDurations(origin, destinations, signal, onProgress) {
-    const { TABLE_CHUNK_SIZE, TABLE_PACE_MS } = CONFIG.OSRM;
-    const total = Math.ceil(destinations.length / TABLE_CHUNK_SIZE);
-    const results = [];
+    const { TABLE_CHUNK_SIZE } = CONFIG.OSRM;
+    const keys = destinations.map(d => driveKey(origin, d));
 
-    for (let i = 0; i < destinations.length; i += TABLE_CHUNK_SIZE) {
-        // Pace every request after the first
-        if (i > 0) {
-            await wait(TABLE_PACE_MS, signal);
-        }
-        const chunk = destinations.slice(i, i + TABLE_CHUNK_SIZE);
-        results.push(...await tableChunkWithRetry(origin, chunk, signal));
+    // Only ask OSRM for pairs this session has not routed yet
+    const missing = destinations.filter((_, i) => !driveCache.has(keys[i]));
+    const total = Math.ceil(missing.length / TABLE_CHUNK_SIZE);
+
+    for (let i = 0; i < missing.length; i += TABLE_CHUNK_SIZE) {
+        const chunk = missing.slice(i, i + TABLE_CHUNK_SIZE);
+        const routes = await tableChunkWithRetry(origin, chunk, signal);
+        chunk.forEach((d, j) => {
+            // Failed lookups stay uncached so a later search can try again
+            if (routes[j]) {
+                driveCache.set(driveKey(origin, d), routes[j]);
+            }
+        });
         onProgress?.(i / TABLE_CHUNK_SIZE + 1, total);
     }
 
-    return results;
+    return keys.map(k => driveCache.get(k) ?? null);
+}
+
+// Session cache of origin -> destination drive results (roads do not change mid-session)
+const driveCache = new Map();
+
+/** Cache key with ~10 m precision, e.g. "42.6500,-73.7500>42.86320,-73.58110" */
+function driveKey(origin, dest) {
+    return `${origin.lat.toFixed(4)},${origin.lng.toFixed(4)}>${dest.lat.toFixed(5)},${dest.lng.toFixed(5)}`;
 }
 
 /**
@@ -230,7 +244,7 @@ export async function getOptimizedTrip(waypoints, options = {}, retries = 3) {
 
     for (let attempt = 0; attempt < retries; attempt++) {
         try {
-            const response = await fetch(url);
+            const response = await scheduledFetch(url);
 
             if (!response.ok) {
                 // The public OSRM demo instance has no uptime SLA and applies
@@ -324,7 +338,7 @@ export async function getRouteThrough(waypoints, retries = 3) {
 
     for (let attempt = 0; attempt < retries; attempt++) {
         try {
-            const response = await fetch(url);
+            const response = await scheduledFetch(url);
 
             if (!response.ok) {
                 // The public OSRM demo instance has no uptime SLA and applies
