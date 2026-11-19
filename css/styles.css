@@ -1895,8 +1895,11 @@ body {
 }
 
 /* About Section (Collapsible) */
+/* Match .main-content width so it lines up with the cards below */
 .about-section {
-    margin-bottom: 16px;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto 16px;
     box-shadow: none;
     border: 1px dashed var(--border-color);
     background: var(--card-bg-muted);
