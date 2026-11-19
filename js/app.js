@@ -442,42 +442,30 @@ class BirdingHotspotsApp {
      * Initialize theme from saved preference or system setting
      */
     initializeTheme() {
-        const saved = storage.getTheme();
-        if (saved) {
-            document.documentElement.setAttribute('data-theme', saved);
-        }
+        const systemDark = window.matchMedia('(prefers-color-scheme: dark)');
 
-        // Helper to sync aria-pressed with the effective dark/light state
-        const syncThemeBtn = () => {
-            if (!this.elements.themeToggle) return;
-            const current = document.documentElement.getAttribute('data-theme');
-            const isDark = current === 'dark' ||
-                (!current && window.matchMedia('(prefers-color-scheme: dark)').matches);
-            this.elements.themeToggle.setAttribute('aria-pressed', String(isDark));
+        // Always resolve to an explicit data-theme so one set of dark rules
+        // serves both "Dark" and "Auto" (system dark); auto follows the OS live.
+        const apply = () => {
+            const saved = storage.getTheme();
+            const theme = saved || (systemDark.matches ? 'dark' : 'light');
+            document.documentElement.setAttribute('data-theme', theme);
+            if (this.elements.themeToggle) {
+                this.elements.themeToggle.setAttribute('aria-pressed', String(theme === 'dark'));
+                this.elements.themeToggle.title = saved ? `Theme: ${saved}` : 'Theme: auto (follows system)';
+            }
         };
 
-        syncThemeBtn(); // Set initial state
+        apply();
+        systemDark.addEventListener('change', apply);
 
-        // Theme toggle click handler
+        // Toggle cycles dark -> light -> auto -> dark
         if (this.elements.themeToggle) {
             this.elements.themeToggle.addEventListener('click', () => {
-                const current = document.documentElement.getAttribute('data-theme');
-                let next;
-                if (current === 'dark') {
-                    next = 'light';
-                } else if (current === 'light') {
-                    // Go back to auto (remove attribute)
-                    next = null;
-                } else {
-                    next = 'dark';
-                }
-                if (next) {
-                    document.documentElement.setAttribute('data-theme', next);
-                } else {
-                    document.documentElement.removeAttribute('data-theme');
-                }
+                const saved = storage.getTheme();
+                const next = saved === 'dark' ? 'light' : saved === 'light' ? null : 'dark';
                 storage.setTheme(next);
-                syncThemeBtn();
+                apply();
             });
         }
     }

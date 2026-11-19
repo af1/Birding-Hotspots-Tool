@@ -100,6 +100,19 @@
         --confidence-high: #66BB6A;
         --confidence-medium: #FFB74D;
         --confidence-low: #90A4AE;
+        /* synced from [data-theme="dark"] */
+        --weather-excellent: #66BB6A;
+        --weather-good: #8BC34A;
+        --weather-fair: #FFB74D;
+        --weather-poor: #EF5350;
+        --weather-cloudy: #90A4AE;
+        --lifer-text: #8DB8FF;
+        --lifer-glow: rgba(141, 184, 255, 0.3);
+        --season-spring: #66BB6A;
+        --season-fall: #FFD54F;
+        --season-winter: #90A4AE;
+        --error-badge-bg: #ef5350;
+        --error-badge-text: #fff;
     }
 }
 
@@ -2143,7 +2156,7 @@ details.about-section[open] .about-chevron {
 
 /* Custom numbered markers */
 .hotspot-marker {
-    background: #FF5722;
+    background: #BF360C; /* white numbers stay >= 4.5:1 */
     border: 2px solid white;
     border-radius: 50%;
     color: white;
@@ -7293,3 +7306,27 @@ details.about-section[open] .about-chevron {
 .settings-sidebar .area-amount-input {
     padding-right: 6px;
 }
+
+/* Birding-condition chips: tint from their own text color so they read in both themes */
+.birding-condition {
+    background: color-mix(in srgb, currentColor 16%, transparent) !important;
+}
+.birding-condition.excellent { color: #1B5E20; }
+.birding-condition.good { color: #33691E; }
+.birding-condition.fair { color: #8A4500; }
+.birding-condition.poor { color: #A31515; }
+
+[data-theme="dark"] .birding-condition.excellent { color: #81C784; }
+[data-theme="dark"] .birding-condition.good { color: #AED581; }
+[data-theme="dark"] .birding-condition.fair { color: #FFB74D; }
+[data-theme="dark"] .birding-condition.poor { color: #EF9A9A; }
+
+/* Migration banner text: readable on its amber tint in both themes */
+.migration-alert-title { color: #7A3300; }
+.migration-alert-subtitle { color: #6B2D00; }
+[data-theme="dark"] .migration-alert-title { color: #FFB74D; }
+[data-theme="dark"] .migration-alert-subtitle { color: #FFCC80; }
+
+/* Notable legend: AA on white */
+.notable-legend { color: #A35400; }
+[data-theme="dark"] .notable-legend { color: #FFB74D; }
