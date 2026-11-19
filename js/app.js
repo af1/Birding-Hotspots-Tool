@@ -1943,7 +1943,7 @@ class BirdingHotspotsApp {
         // No list at all: say so instead of offering an empty choice
         const imported = this.lifeListService.hasLifeList()
             ? `My imported list (${this.lifeListService.getCount()})`
-            : 'No list yet: import one under My Life List';
+            : 'No list loaded';
         select.append(new Option(imported, 'imported'));
         for (const list of sortLists(this.regionLists)) {
             select.append(new Option(`${list.label} (${list.codes.size || list.names.size})`, list.key));
@@ -1951,7 +1951,7 @@ class BirdingHotspotsApp {
 
         // Point at the import that unlocks state/county lists
         if (this.regionLists.length === 0) {
-            const hint = new Option('State, county and ABA lists: use "Import all my eBird data"', '');
+            const hint = new Option('Add state/county lists: My Life List', '');
             hint.disabled = true;
             select.append(hint);
         }

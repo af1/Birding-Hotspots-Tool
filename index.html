@@ -31,63 +31,42 @@
     <a href="#main-content" class="skip-link">Skip to main content</a>
     <div class="container">
         <!-- Header -->
-        <header class="header">
-            <div class="logo">
-                <svg class="logo-icon" viewBox="0 0 24 24" width="48" height="48" aria-hidden="true">
-                    <title>Birding Hotspots Finder Logo</title>
-                    <path fill="#3A6B35" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
-                    <path fill="#FF5722" d="M12 4.5c-.8 1.2-1.5 2.3-2 3.5-.6 1.3-.5 2.5.2 3.5.5-.8 1.2-1.5 1.8-2.2.6.7 1.3 1.4 1.8 2.2.7-1 .8-2.2.2-3.5-.5-1.2-1.2-2.3-2-3.5z"/>
-                    <path fill="#FFC107" d="M12 7c-.5.8-1 1.5-1 2.5 0 .8.5 1.5 1 1.5s1-.7 1-1.5c0-1-.5-1.7-1-2.5z"/>
-                </svg>
-                <h1>Birding Hotspots Finder</h1>
-            </div>
-            <p class="tagline">Discover the best birding spots near your location</p>
-            <nav class="header-nav">
-                <a href="support.html" class="help-link" aria-label="Help and FAQ">
-                    <span class="tooltip-icon">?</span> Help & FAQ
-                </a>
-                <a href="https://github.com/chrispt/Birding-Hotspots-Tool/issues/new/choose" target="_blank" rel="noopener noreferrer" class="help-link feedback-link" aria-label="Send feedback">
-                    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
-                        <path fill="currentColor" d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 12h-2v-2h2v2zm0-4h-2V6h2v4z"/>
-                    </svg>
-                    Feedback
-                    <span id="errorBadge" class="error-badge hidden" aria-live="polite" aria-label="errors captured">0</span>
-                </a>
-                <button type="button" id="themeToggle" class="help-link theme-toggle-btn" aria-label="Toggle dark mode" aria-pressed="false">
-                    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
-                        <path fill="currentColor" d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/>
-                    </svg>
-                    Theme
-                </button>
-            </nav>
-        </header>
 
-        <!-- About Section (Collapsible) -->
-        <details class="about-section card">
-            <summary class="about-toggle">
-                <span class="about-title">What is this tool?</span>
-                <svg class="about-chevron" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
-                    <path fill="currentColor" d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
-                </svg>
-            </summary>
-            <div class="about-content">
-                <p><strong>Birding Hotspots Finder</strong> helps you discover the best birding locations near any address or GPS coordinates.</p>
-                <ul>
-                    <li><strong>Find hotspots</strong> - Search eBird's database of birding locations within a 31-mile radius</li>
-                    <li><strong>See recent activity</strong> - View species lists from the last 30 days at each location</li>
-                    <li><strong>Sort your way</strong> - Prioritize by most species diversity or closest distance</li>
-                    <li><strong>Generate PDF reports</strong> - Download a printable report with maps, directions, and species lists</li>
-                    <li><strong>Save locations</strong> - Bookmark your favorite starting points for quick access</li>
-                </ul>
-                <p class="about-note about-glossary"><strong>New to birding?</strong> A <strong>hotspot</strong> is a public birding location tracked on eBird. A <strong>checklist</strong> is one birder's report of a visit. A <strong>lifer</strong> is a species you have never seen before. <strong>Notable</strong> (rare) means eBird flagged the sighting as unusual for that place and season.</p>
-                <p class="about-note">Requires a free <a href="https://ebird.org/api/keygen" target="_blank" rel="noopener noreferrer">eBird API key</a> to access hotspot data.</p>
-            </div>
-        </details>
 
         <!-- Main Content -->
         <main id="main-content" class="main-content">
             <!-- Settings Sidebar -->
             <aside class="settings-sidebar">
+                <header class="header">
+                    <div class="logo">
+                        <svg class="logo-icon" viewBox="0 0 24 24" width="48" height="48" aria-hidden="true">
+                            <title>Birding Hotspots Finder Logo</title>
+                            <path fill="#3A6B35" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+                            <path fill="#FF5722" d="M12 4.5c-.8 1.2-1.5 2.3-2 3.5-.6 1.3-.5 2.5.2 3.5.5-.8 1.2-1.5 1.8-2.2.6.7 1.3 1.4 1.8 2.2.7-1 .8-2.2.2-3.5-.5-1.2-1.2-2.3-2-3.5z"/>
+                            <path fill="#FFC107" d="M12 7c-.5.8-1 1.5-1 2.5 0 .8.5 1.5 1 1.5s1-.7 1-1.5c0-1-.5-1.7-1-2.5z"/>
+                        </svg>
+                        <h1>Birding Hotspots Finder</h1>
+                    </div>
+                    <p class="tagline">Discover the best birding spots near your location</p>
+                    <nav class="header-nav">
+                        <a href="support.html" class="help-link" aria-label="Help and FAQ">
+                            <span class="tooltip-icon">?</span> Help & FAQ
+                        </a>
+                        <a href="https://github.com/chrispt/Birding-Hotspots-Tool/issues/new/choose" target="_blank" rel="noopener noreferrer" class="help-link feedback-link" aria-label="Send feedback">
+                            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                                <path fill="currentColor" d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 12h-2v-2h2v2zm0-4h-2V6h2v4z"/>
+                            </svg>
+                            Feedback
+                            <span id="errorBadge" class="error-badge hidden" aria-live="polite" aria-label="errors captured">0</span>
+                        </a>
+                        <button type="button" id="themeToggle" class="help-link theme-toggle-btn" aria-label="Toggle dark mode" aria-pressed="false">
+                            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                                <path fill="currentColor" d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/>
+                            </svg>
+                            Theme
+                        </button>
+                    </nav>
+                </header>
                 <!-- API Key Section -->
             <section class="card api-key-card" id="apiKeyCard">
                 <div id="apiKeyCollapsed" class="api-key-collapsed hidden">
@@ -120,14 +99,14 @@
                     Remember my API key
                 </label>
                 <p id="apiKeyPrivacy" class="api-key-privacy">
-                    <strong>Your key goes only to eBird.</strong> Your browser sends it straight to eBird to run searches. It never reaches this site&rsquo;s servers or any third party. &ldquo;Remember&rdquo; saves it in this browser only.
+                    <strong>Your key goes only to eBird.</strong> Never to this site&rsquo;s servers or anyone else. &ldquo;Remember&rdquo; keeps it in this browser only.
                 </p>
                 </div>
             </section>
 
             <!-- Step 1: Search Type Selection -->
             <section id="searchTypeSection" class="card">
-                <h2 class="section-title">What are you looking for?</h2>
+                <h2 class="section-title">Search</h2>
                 <div class="mode-tabs" role="group" aria-label="Search mode">
                     <button type="button" class="mode-tab active" id="locationSearchBtn" aria-pressed="true">Near a place</button>
                     <button type="button" class="mode-tab" id="routeSearchBtn" aria-pressed="false">Along a route</button>
@@ -163,9 +142,15 @@
 
                 <!-- Address Input -->
                 <div id="addressInput" class="input-group">
-                    <label for="address" class="input-label">Enter Address</label>
+                    <label for="address" class="input-label visually-hidden">Address</label>
                     <div class="input-with-validation">
-                        <input type="text" id="address" class="text-input" placeholder="123 Main St, City, State" aria-label="Enter your address" aria-describedby="addressError">
+                        <input type="text" id="address" class="text-input" placeholder="Search for a place or address" aria-label="Enter your address" aria-describedby="addressError">
+                        <button type="button" id="useCurrentLocation" class="btn-icon locate-btn" title="Use my current location">
+                            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                                <path fill="currentColor" d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3A8.994 8.994 0 0013 3.06V1h-2v2.06A8.994 8.994 0 003.06 11H1v2h2.06A8.994 8.994 0 0011 20.94V23h2v-2.06A8.994 8.994 0 0020.94 13H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/>
+                            </svg>
+                            <span class="visually-hidden">Use my current location</span>
+                        </button>
                         <span id="addressValidationIcon" class="input-validation-indicator hidden"></span>
                     </div>
                     <div id="addressError" class="input-error hidden" role="alert"></div>
@@ -185,12 +170,6 @@
                     </div>
                 </div>
 
-                <button type="button" id="useCurrentLocation" class="btn btn-secondary">
-                    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
-                        <path fill="currentColor" d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3A8.994 8.994 0 0013 3.06V1h-2v2.06A8.994 8.994 0 003.06 11H1v2h2.06A8.994 8.994 0 0011 20.94V23h2v-2.06A8.994 8.994 0 0020.94 13H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/>
-                    </svg>
-                    Use My Current Location
-                </button>
 
                 <!-- Recent Searches -->
                 <div id="recentSearches" class="recent-searches hidden" aria-label="Recent searches"></div>
@@ -345,6 +324,83 @@
             </section>
 
             <!-- Route Hotspots Selection Section (shown after finding hotspots along route) -->
+            <!-- Advanced Options Section (Collapsible) -->
+            <section class="card sidebar-options" id="advancedOptionsSection">
+                <button type="button" class="collapsible-header" id="advancedOptionsToggle" aria-expanded="false" aria-controls="advancedOptionsContent">
+                    <h2 class="section-title">
+                        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" class="section-title-icon">
+                            <path fill="currentColor" d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+                        </svg>
+                        Advanced Options
+                    </h2>
+                    <svg class="collapse-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+                        <path fill="currentColor" d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+                    </svg>
+                </button>
+                <div id="advancedOptionsContent" class="sidebar-options-content">
+                    <!-- Search Range -->
+                    <div class="advanced-option-group" id="searchRangeSection">
+                        <fieldset class="fieldset-reset">
+                            <legend class="advanced-option-label has-tooltip tooltip-left" data-tooltip="eBird limits searches to 50km (31 miles). A larger range finds more hotspots but may include distant locations.">Area</legend>
+                            <div class="range-options">
+                                <label class="radio-label">
+                                    <input type="radio" name="searchRange" value="16" checked>
+                                    <span class="radio-custom"></span>
+                                    10 mi
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="searchRange" value="32">
+                                    <span class="radio-custom"></span>
+                                    20 mi
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="searchRange" value="50">
+                                    <span class="radio-custom"></span>
+                                    31 mi
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="searchRange" value="drive">
+                                    <span class="radio-custom"></span>
+                                    Drive
+                                </label>
+                            </div>
+                            <div class="input-group drive-minutes-group hidden" id="driveMinutesGroup">
+                                <label for="driveMinutes" class="input-label">
+                                    Max drive: <span id="driveMinutesValue">45</span> min
+                                </label>
+                                <input type="range" id="driveMinutes" class="range-input" min="15" max="90" step="5" value="45" aria-describedby="driveMinutesHelp">
+                                <p id="driveMinutesHelp" class="help-text">Only hotspots you can reach within this many minutes of driving.</p>
+                            </div>
+                        </fieldset>
+                    </div>
+
+                    <!-- Number of Hotspots -->
+                    <div class="advanced-option-group" id="hotspotsCountSection">
+                        <fieldset class="fieldset-reset">
+                            <legend class="advanced-option-label has-tooltip tooltip-left" data-tooltip="How many hotspots to include in your results. Higher counts provide more options but take longer to load.">Results</legend>
+                            <div class="range-options">
+                                <label class="radio-label">
+                                    <input type="radio" name="hotspotsCount" value="10" checked>
+                                    <span class="radio-custom"></span>
+                                    10 hotspots
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="hotspotsCount" value="20">
+                                    <span class="radio-custom"></span>
+                                    20 hotspots
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="hotspotsCount" value="30">
+                                    <span class="radio-custom"></span>
+                                    30 hotspots
+                                </label>
+                            </div>
+                            <p class="help-text">Higher counts may take longer to load</p>
+                        </fieldset>
+                    </div>
+                </div>
+            </section>
+
             <div class="search-action" id="searchAction">
             <div class="sort-row" id="sortOptionsSection">
                 <label for="sortMethod" class="sort-row-label">Sort by</label>
@@ -419,83 +475,6 @@
                 </div>
             </section>
 
-            <!-- Advanced Options Section (Collapsible) -->
-            <section class="card collapsible-section" id="advancedOptionsSection">
-                <button type="button" class="collapsible-header" id="advancedOptionsToggle" aria-expanded="false" aria-controls="advancedOptionsContent">
-                    <h2 class="section-title">
-                        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" class="section-title-icon">
-                            <path fill="currentColor" d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
-                        </svg>
-                        Advanced Options
-                    </h2>
-                    <svg class="collapse-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
-                        <path fill="currentColor" d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
-                    </svg>
-                </button>
-                <div id="advancedOptionsContent" class="collapsible-content collapsed">
-                    <p class="help-text advanced-options-note">Your choices here are remembered on this device.</p>
-                    <!-- Search Range -->
-                    <div class="advanced-option-group" id="searchRangeSection">
-                        <fieldset class="fieldset-reset">
-                            <legend class="advanced-option-label has-tooltip tooltip-left" data-tooltip="eBird limits searches to 50km (31 miles). A larger range finds more hotspots but may include distant locations.">Search Range</legend>
-                            <div class="range-options">
-                                <label class="radio-label">
-                                    <input type="radio" name="searchRange" value="16" checked>
-                                    <span class="radio-custom"></span>
-                                    10 miles
-                                </label>
-                                <label class="radio-label">
-                                    <input type="radio" name="searchRange" value="32">
-                                    <span class="radio-custom"></span>
-                                    20 miles
-                                </label>
-                                <label class="radio-label">
-                                    <input type="radio" name="searchRange" value="50">
-                                    <span class="radio-custom"></span>
-                                    31 miles (eBird limit)
-                                </label>
-                                <label class="radio-label">
-                                    <input type="radio" name="searchRange" value="drive">
-                                    <span class="radio-custom"></span>
-                                    Drive time
-                                </label>
-                            </div>
-                            <div class="input-group drive-minutes-group hidden" id="driveMinutesGroup">
-                                <label for="driveMinutes" class="input-label">
-                                    Max drive: <span id="driveMinutesValue">45</span> min
-                                </label>
-                                <input type="range" id="driveMinutes" class="range-input" min="15" max="90" step="5" value="45" aria-describedby="driveMinutesHelp">
-                                <p id="driveMinutesHelp" class="help-text">Only hotspots you can reach within this many minutes of driving.</p>
-                            </div>
-                        </fieldset>
-                    </div>
-
-                    <!-- Number of Hotspots -->
-                    <div class="advanced-option-group" id="hotspotsCountSection">
-                        <fieldset class="fieldset-reset">
-                            <legend class="advanced-option-label has-tooltip tooltip-left" data-tooltip="How many hotspots to include in your results. Higher counts provide more options but take longer to load.">Number of Hotspots</legend>
-                            <div class="range-options">
-                                <label class="radio-label">
-                                    <input type="radio" name="hotspotsCount" value="10" checked>
-                                    <span class="radio-custom"></span>
-                                    10 hotspots
-                                </label>
-                                <label class="radio-label">
-                                    <input type="radio" name="hotspotsCount" value="20">
-                                    <span class="radio-custom"></span>
-                                    20 hotspots
-                                </label>
-                                <label class="radio-label">
-                                    <input type="radio" name="hotspotsCount" value="30">
-                                    <span class="radio-custom"></span>
-                                    30 hotspots
-                                </label>
-                            </div>
-                            <p class="help-text">Higher counts may take longer to load</p>
-                        </fieldset>
-                    </div>
-                </div>
-            </section>
 
             <!-- Saved Locations Section (Collapsible) -->
             <section class="card collapsible-section">
@@ -595,12 +574,34 @@
             </section>
 
             <!-- Generate Button -->
+            <!-- About Section (Collapsible) -->
+            <details class="about-section card">
+                <summary class="about-toggle">
+                    <span class="about-title">What is this tool?</span>
+                    <svg class="about-chevron" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+                        <path fill="currentColor" d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+                    </svg>
+                </summary>
+                <div class="about-content">
+                    <p><strong>Birding Hotspots Finder</strong> helps you discover the best birding locations near any address or GPS coordinates.</p>
+                    <ul>
+                        <li><strong>Find hotspots</strong> - Search eBird's database of birding locations within a 31-mile radius</li>
+                        <li><strong>See recent activity</strong> - View species lists from the last 30 days at each location</li>
+                        <li><strong>Sort your way</strong> - Prioritize by most species diversity or closest distance</li>
+                        <li><strong>Generate PDF reports</strong> - Download a printable report with maps, directions, and species lists</li>
+                        <li><strong>Save locations</strong> - Bookmark your favorite starting points for quick access</li>
+                    </ul>
+                    <p class="about-note about-glossary"><strong>New to birding?</strong> A <strong>hotspot</strong> is a public birding location tracked on eBird. A <strong>checklist</strong> is one birder's report of a visit. A <strong>lifer</strong> is a species you have never seen before. <strong>Notable</strong> (rare) means eBird flagged the sighting as unusual for that place and season.</p>
+                    <p class="about-note">Requires a free <a href="https://ebird.org/api/keygen" target="_blank" rel="noopener noreferrer">eBird API key</a> to access hotspot data.</p>
+                </div>
+            </details>
             </aside>
 
             <!-- Results Area -->
             <div class="results-area">
                 <!-- Screen reader status announcements -->
                 <div id="searchStatus" class="visually-hidden" aria-live="polite" role="status"></div>
+                <p class="results-empty" id="resultsEmpty">Set your search on the left, then press <strong>Find Hotspots</strong>.</p>
                 <!-- Results Section (hidden by default) -->
                 <section id="resultsSection" class="results-section hidden" tabindex="-1" aria-label="Search results">
                 <!-- Results Header (sticky) -->

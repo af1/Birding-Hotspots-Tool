@@ -6459,3 +6459,366 @@ details.about-section[open] .about-chevron {
         color: #0E1A2B;
     }
 }
+
+/* ==========================================================================
+   Compact layout: dense sidebar of controls, results pane beside it
+   ========================================================================== */
+
+/* Sidebar shell: one flat panel, small uppercase labels, tight rhythm */
+.settings-sidebar {
+    gap: 14px;
+    font-size: 0.9rem;
+}
+
+.settings-sidebar .card,
+.settings-sidebar .collapsible-section {
+    background: none;
+    border: 0;
+    box-shadow: none;
+    border-radius: 0;
+    padding: 0;
+    margin: 0;
+}
+
+.settings-sidebar .section-title,
+.settings-sidebar .advanced-option-label,
+.settings-sidebar .sort-row-label {
+    font-family: var(--font-body);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    margin: 0 0 6px;
+}
+
+.settings-sidebar .section-header {
+    margin-bottom: 0;
+}
+
+.settings-sidebar .input-group {
+    margin-bottom: 8px;
+}
+
+.settings-sidebar .text-input,
+.settings-sidebar .select-input,
+.settings-sidebar .species-search-input {
+    min-height: 36px;
+    padding: 6px 10px;
+    font-size: 0.9rem;
+}
+
+.settings-sidebar .help-text,
+.settings-sidebar .help-text-small {
+    font-size: 0.78rem;
+    margin-top: 4px;
+}
+
+/* Compact brand header */
+.settings-sidebar .header {
+    padding: 0 0 12px;
+    margin: 0;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.settings-sidebar .header .logo {
+    justify-content: flex-start;
+    gap: 8px;
+}
+
+.settings-sidebar .header .logo-icon {
+    width: 28px;
+    height: 28px;
+}
+
+.settings-sidebar .header h1 {
+    font-size: 1.25rem;
+    margin: 0;
+}
+
+.settings-sidebar .header .tagline {
+    font-size: 0.8rem;
+    margin: 2px 0 8px;
+}
+
+.settings-sidebar .header-nav {
+    justify-content: flex-start;
+    gap: 6px;
+}
+
+.settings-sidebar .header-nav .help-link {
+    font-size: 0.75rem;
+    padding: 3px 8px;
+}
+
+/* Segmented controls: mode tabs and radio rows read as one strip */
+.settings-sidebar .mode-tabs,
+.settings-sidebar .range-options,
+.settings-sidebar .input-mode-toggle {
+    display: flex;
+    flex-direction: row; /* stay one strip on phones too */
+    gap: 0;
+    padding: 0;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    background: var(--card-bg);
+    overflow: hidden;
+}
+
+.settings-sidebar .mode-tab,
+.settings-sidebar .range-options .radio-label,
+.settings-sidebar .input-mode-toggle .radio-label {
+    flex: 1;
+    justify-content: center;
+    margin: 0;
+    padding: 7px 4px;
+    min-height: 34px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    border-radius: 0;
+    box-shadow: none;
+    border-left: 1px solid var(--border-color);
+    cursor: pointer;
+    text-align: center;
+}
+
+.settings-sidebar .mode-tab:first-child,
+.settings-sidebar .range-options .radio-label:first-child,
+.settings-sidebar .input-mode-toggle .radio-label:first-of-type {
+    border-left: 0;
+}
+
+.settings-sidebar .range-options .radio-custom,
+.settings-sidebar .input-mode-toggle .radio-custom {
+    display: none;
+}
+
+.settings-sidebar .range-options input[type="radio"],
+.settings-sidebar .input-mode-toggle input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.settings-sidebar .mode-tab.active,
+.settings-sidebar .range-options .radio-label:has(input:checked),
+.settings-sidebar .input-mode-toggle .radio-label:has(input:checked) {
+    background: var(--primary-color);
+    color: #FFFFFF;
+    box-shadow: none;
+}
+
+.settings-sidebar .range-options .radio-label:has(input:focus-visible),
+.settings-sidebar .input-mode-toggle .radio-label:has(input:focus-visible) {
+    outline: 2px solid var(--primary-color);
+    outline-offset: -2px;
+}
+
+.settings-sidebar .input-mode-toggle {
+    margin-bottom: 8px;
+}
+
+/* Location: locate icon sits inside the address field */
+.settings-sidebar .input-with-validation {
+    position: relative;
+}
+
+.settings-sidebar #address {
+    padding-right: 40px;
+}
+
+.settings-sidebar .locate-btn {
+    position: absolute;
+    top: 50%;
+    right: 4px;
+    transform: translateY(-50%);
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: 0;
+    color: var(--text-secondary);
+    border-radius: var(--radius);
+}
+
+.settings-sidebar .locate-btn:hover {
+    color: var(--primary-text);
+    background: var(--hover-bg);
+}
+
+/* Former Advanced Options: always open, no header */
+.settings-sidebar #advancedOptionsToggle {
+    display: none;
+}
+
+.settings-sidebar .sidebar-options-content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.settings-sidebar .advanced-option-group {
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+/* Options are visible now, so the "Within 10 mi · Top 10 · Change" recap is redundant */
+.settings-sidebar .search-options-summary {
+    display: none;
+}
+
+/* Secondary sections: slim disclosure rows */
+.settings-sidebar .collapsible-section {
+    border-top: 1px solid var(--border-color);
+    padding-top: 4px;
+}
+
+.settings-sidebar .collapsible-header {
+    padding: 8px 0;
+    min-height: 0;
+}
+
+.settings-sidebar .collapsible-header .section-title {
+    margin: 0;
+}
+
+.settings-sidebar .about-section {
+    border-top: 1px solid var(--border-color);
+    padding-top: 8px;
+    max-width: none;
+}
+
+.settings-sidebar .btn-large {
+    min-height: 42px;
+    padding: 10px 16px;
+    font-size: 0.95rem;
+}
+
+/* Empty results pane before the first search */
+.results-empty {
+    display: none;
+}
+
+/* Desktop: fixed sidebar + results pane from the first visit */
+@media (min-width: 1024px) {
+    .container {
+        padding: 0;
+        max-width: none;
+        margin: 0;
+    }
+
+    .main-content,
+    .main-content.has-results {
+        display: grid;
+        grid-template-columns: 360px minmax(0, 1fr);
+        gap: 0;
+        align-items: start;
+        max-width: none;
+        margin: 0;
+    }
+
+    .main-content .settings-sidebar {
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        max-height: 100vh;
+        overflow-y: auto;
+        padding: 16px 20px;
+        background: var(--card-bg);
+        border-right: 1px solid var(--border-color);
+        scrollbar-width: thin;
+    }
+
+    .main-content .results-area {
+        padding: 20px 28px;
+        min-width: 0;
+    }
+
+    .main-content:not(.has-results) .results-empty {
+        display: block;
+        margin: 15vh auto 0;
+        text-align: center;
+        color: var(--text-secondary);
+    }
+
+    /* Pin sort + Find Hotspots to the sidebar's bottom edge at all times */
+    .main-content .search-action,
+    .main-content.has-results .search-action {
+        order: 0;
+        position: sticky;
+        bottom: -16px;
+        z-index: 2;
+        margin: 0 -20px;
+        padding: 10px 20px 16px;
+        background: var(--card-bg);
+        border-top: 1px solid var(--border-color);
+        box-shadow: none;
+    }
+}
+
+/* Results pane, wide screens: list on the left, map pinned on the right */
+@media (min-width: 1280px) {
+    .results-section:not(.hidden) {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(360px, 42%);
+        column-gap: 24px;
+        align-items: start;
+    }
+
+    .results-section > * {
+        grid-column: 1;
+    }
+
+    .results-section > .results-map-container {
+        grid-column: 2;
+        grid-row: 1 / span 30;
+        position: sticky;
+        top: 20px;
+        margin: 0;
+    }
+
+    .results-section .results-map {
+        height: calc(100vh - 40px);
+        border-radius: var(--radius-large);
+    }
+}
+
+/* Denser hotspot rows */
+.hotspot-card {
+    border: 1px solid var(--border-color);
+    box-shadow: none;
+}
+
+.hotspot-card:hover {
+    box-shadow: none;
+    border-color: var(--primary-light);
+}
+
+.hotspot-cards {
+    gap: 10px;
+}
+
+/* "Where should I go?" repeated the top-ranked row; the ranked list says it */
+.quick-picks {
+    display: none !important;
+}
+
+/* The lifer badge already names every lifer; the "For you" line repeated it */
+.hotspot-for-you {
+    display: none;
+}
+
+/* Dark mode: darken map tiles only (markers and controls keep their colors) */
+[data-theme="dark"] .leaflet-tile-pane {
+    filter: invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.9);
+}
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .leaflet-tile-pane {
+        filter: invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.9);
+    }
+}
