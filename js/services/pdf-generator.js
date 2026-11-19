@@ -14,7 +14,7 @@ const PDF_COLORS = {
     textPrimary:   [33, 33, 33],     // Dark gray
     textSecondary: [117, 117, 117],  // Medium gray
     notable:       [255, 87, 34],    // Orange for rare species
-    lifer:         [123, 31, 162],   // Purple, matches --lifer-text
+    lifer:         [31, 95, 191],    // Blue, matches --lifer-text
     target:        [25, 118, 210],   // Blue, matches --target-hover
     link:          [0, 102, 204]     // Blue for links
 };

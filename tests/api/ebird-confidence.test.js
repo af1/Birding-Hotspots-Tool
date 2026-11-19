@@ -65,3 +65,17 @@ export async function testProcessObservationsUsesMostRecentSightingForConfidence
     assert(bird.lastSeen === recentDt, 'Should keep the most recent sighting date');
     assert(bird.confidence.tier === 'high', `Expected confidence to reflect the most recent sighting, got ${bird.confidence.tier}`);
 }
+
+// Hybrids, "sp." and slashes never count toward a list, so they are never lifers
+export async function testUncountableTaxaAreNeverLifers() {
+    const obs = (speciesCode, comName) => ({ speciesCode, comName, obsDt: '2026-11-18 08:00', howMany: 1 });
+    const birds = processObservations([
+        obs('x00004', 'Mallard x American Black Duck (hybrid)'),
+        obs('duck1', 'duck sp.'),
+        obs('y00478', 'Greater/Lesser Scaup'),
+        obs('blksco', 'Black Scoter')
+    ], new Set(), new Set(['amecro']));
+
+    const lifers = birds.filter(b => b.isLifer).map(b => b.comName);
+    assert(lifers.length === 1 && lifers[0] === 'Black Scoter', `Expected only Black Scoter, got ${lifers.join(', ')}`);
+}

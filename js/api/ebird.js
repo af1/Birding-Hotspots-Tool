@@ -372,6 +372,18 @@ export function getConfidenceTier(obsDt, referenceDate = new Date()) {
     return { tier, daysAgo };
 }
 
+// eBird names for taxa that never count toward a list:
+// "Mallard x American Black Duck (hybrid)", "duck sp.", "Greater/Lesser Scaup", "Mallard (Domestic type)"
+const UNCOUNTABLE_NAME = /\(hybrid\)| x |\bsp\.$|\/|domestic/i;
+
+/**
+ * Can this observation be a lifer? False for hybrids, spuhs, slashes and domestics.
+ * @param {string} comName - eBird common name
+ */
+export function isCountableTaxon(comName) {
+    return !UNCOUNTABLE_NAME.test(comName || '');
+}
+
 /**
  * Process observations to get unique species with counts
  * @param {Array} observations - Raw observation array from eBird
@@ -398,7 +410,7 @@ export function processObservations(observations, notableSpeciesCodes = new Set(
                 count: obs.howMany || 1,
                 lastSeen: obs.obsDt,
                 isNotable: notableSpeciesCodes.has(code),
-                isLifer: hasLifeList && !onLifeList,
+                isLifer: hasLifeList && !onLifeList && isCountableTaxon(obs.comName),
                 confidence: getConfidenceTier(obs.obsDt)
             });
         } else {

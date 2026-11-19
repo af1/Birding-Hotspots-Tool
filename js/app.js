@@ -10,7 +10,7 @@ import { clearElement } from './utils/dom-helpers.js';
 import { storage, SEARCH_OPTION_VALUES } from './services/storage.js';
 import { geocodeAddress, getCurrentPosition } from './api/geocoding.js';
 import { reverseGeocode, batchReverseGeocode } from './api/reverse-geo.js';
-import { EBirdAPI, processObservations } from './api/ebird.js';
+import { EBirdAPI, processObservations, isCountableTaxon } from './api/ebird.js';
 import { generatePDFReport, downloadPDF, generateRoutePDFReport, downloadRoutePDF } from './services/pdf-generator.js';
 import { getDrivingRoutes, getRouteThrough } from './api/routing.js';
 import { getWeatherForLocations, getOverallBirdingConditions, getBirdingConditionScore, getGoldenHourStatus } from './api/weather.js';
@@ -1893,7 +1893,7 @@ class BirdingHotspotsApp {
             const inRegion = !region || regionContains(region, hotspot);
             for (const bird of hotspot.birds || []) {
                 const seen = codes.has(bird.speciesCode) || names.has(bird.comName?.toLowerCase());
-                bird.isLifer = hasList && inRegion && !seen;
+                bird.isLifer = hasList && inRegion && !seen && isCountableTaxon(bird.comName);
             }
         }
 

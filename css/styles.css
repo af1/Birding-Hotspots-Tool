@@ -16,13 +16,13 @@
     --error-bg: #FFEBEE;
     --success: #388E3C;
     --notable-highlight: #FF5722;
-    --lifer-highlight: #6A1B9A;
+    --lifer-highlight: #1F5FBF;
     /* Text-safe primary and button fill: keep WCAG AA (4.5:1) in both themes */
     --primary-text: #2F5D50;
-    --lifer-badge-text: #6A1B9A;
+    --lifer-badge-text: #1F5FBF;
     --btn-from: #1F2421;
     --btn-to: #1F2421;
-    --lifer-bg: #F3E5F5;
+    --lifer-bg: #E8F0FC;
     --shadow: 0 1px 2px rgba(31, 36, 33, 0.06), 0 4px 12px rgba(31, 36, 33, 0.06);
     --shadow-hover: 0 2px 4px rgba(31, 36, 33, 0.08), 0 8px 20px rgba(31, 36, 33, 0.08);
     --radius: 4px;
@@ -51,8 +51,8 @@
     --weather-poor: #D32F2F;
     --weather-cloudy: #607D8B;
     /* Semantic colors: lifer badges */
-    --lifer-text: #7B1FA2;
-    --lifer-glow: rgba(156, 39, 176, 0.3);
+    --lifer-text: #1F5FBF;
+    --lifer-glow: rgba(31, 95, 191, 0.3);
     /* Semantic colors: seasons */
     --season-spring: #3A6B35;
     --season-fall: #F57F17;
@@ -74,11 +74,12 @@
 /* Dark Mode - System Preference */
 @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
+        --lifer-highlight: #8DB8FF;
     --btn-to: #3F7062;
     --btn-from: #3F7062;
         --primary-color: #3F7062;
         --primary-text: #8FC2B1;
-        --lifer-badge-text: #CE93D8;
+        --lifer-badge-text: #8DB8FF;
         --primary-hover: #4C8273;
         --primary-light: #6FA594;
         --secondary-color: #9DBBA9;
@@ -92,7 +93,7 @@
         --shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.4);
         --hover-bg: #252C28;
         --error-bg: #3E1E1E;
-        --lifer-bg: #2A1E2E;
+        --lifer-bg: #1C2633;
         --card-bg-muted: #181D1A;
         --confidence-high: #66BB6A;
         --confidence-medium: #FFB74D;
@@ -119,11 +120,12 @@
 
 /* Dark Mode - Manual Toggle */
 [data-theme="dark"] {
+        --lifer-highlight: #8DB8FF;
     --btn-to: #3F7062;
     --btn-from: #3F7062;
     --primary-color: #3F7062;
     --primary-text: #8FC2B1;
-    --lifer-badge-text: #CE93D8;
+    --lifer-badge-text: #8DB8FF;
     --primary-hover: #4C8273;
     --primary-light: #6FA594;
     --secondary-color: #9DBBA9;
@@ -137,7 +139,7 @@
     --shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.4);
     --hover-bg: #252C28;
     --error-bg: #3E1E1E;
-    --lifer-bg: #2A1E2E;
+    --lifer-bg: #1C2633;
     --card-bg-muted: #181D1A;
     /* Semantic colors: softened for dark backgrounds */
     --weather-excellent: #66BB6A;
@@ -145,8 +147,8 @@
     --weather-fair: #FFB74D;
     --weather-poor: #EF5350;
     --weather-cloudy: #90A4AE;
-    --lifer-text: #CE93D8;
-    --lifer-glow: rgba(206, 147, 216, 0.3);
+    --lifer-text: #8DB8FF;
+    --lifer-glow: rgba(141, 184, 255, 0.3);
     --season-spring: #66BB6A;
     --season-fall: #FFD54F;
     --season-winter: #90A4AE;
@@ -2418,7 +2420,7 @@ details.about-section[open] .about-chevron {
 
 /* Species that is BOTH notable AND lifer */
 .species-item.notable.lifer {
-    background: linear-gradient(90deg, rgba(255, 243, 224, 0.5), rgba(243, 229, 245, 0.5));
+    background: linear-gradient(90deg, rgba(255, 243, 224, 0.5), rgba(232, 240, 252, 0.5));
     padding: 4px 8px;
     border-radius: 4px;
     color: var(--lifer-highlight);
@@ -2928,7 +2930,7 @@ details.about-section[open] .about-chevron {
 /* ========== LIFER ALERT ========== */
 
 .lifer-alert {
-    background: linear-gradient(135deg, #F3E5F5 0%, #E1BEE7 100%);
+    background: linear-gradient(135deg, #E8F0FC 0%, #D3E2F8 100%);
     border: 2px solid var(--lifer-highlight);
     border-radius: var(--radius-large);
     padding: 16px 20px;
@@ -2974,7 +2976,7 @@ details.about-section[open] .about-chevron {
 
 .lifer-alert-item {
     padding: 8px 0;
-    border-bottom: 1px solid rgba(156, 39, 176, 0.2);
+    border-bottom: 1px solid rgba(31, 95, 191, 0.2);
     font-size: 0.9rem;
     color: var(--text-primary);
 }
@@ -3004,8 +3006,8 @@ details.about-section[open] .about-chevron {
     gap: 6px;
     width: 100%;
     padding: 8px;
-    background: rgba(156, 39, 176, 0.1);
-    border: 1px solid rgba(156, 39, 176, 0.3);
+    background: rgba(31, 95, 191, 0.1);
+    border: 1px solid rgba(31, 95, 191, 0.3);
     border-radius: var(--radius);
     cursor: pointer;
     font-size: 0.85rem;
@@ -3016,7 +3018,7 @@ details.about-section[open] .about-chevron {
 }
 
 .lifer-alert-toggle:hover {
-    background: rgba(156, 39, 176, 0.2);
+    background: rgba(31, 95, 191, 0.2);
 }
 
 .lifer-alert-toggle .chevron {
@@ -3041,7 +3043,7 @@ details.about-section[open] .about-chevron {
     align-items: center;
     gap: 4px;
     flex-shrink: 0;
-    box-shadow: 0 2px 4px rgba(156, 39, 176, 0.3);
+    box-shadow: 0 2px 4px rgba(31, 95, 191, 0.3);
 }
 
 .lifer-badge svg {
@@ -3051,7 +3053,7 @@ details.about-section[open] .about-chevron {
 
 /* Lifer Highlight Section in Hotspot Card */
 .lifer-highlight {
-    background: linear-gradient(135deg, #F3E5F5 0%, #E1BEE7 100%);
+    background: linear-gradient(135deg, #E8F0FC 0%, #D3E2F8 100%);
     border-left: 4px solid var(--lifer-highlight);
     padding: 12px 16px;
     margin: 0;
@@ -3096,7 +3098,7 @@ details.about-section[open] .about-chevron {
     justify-content: space-between;
     align-items: center;
     padding: 6px 0;
-    border-bottom: 1px solid rgba(156, 39, 176, 0.15);
+    border-bottom: 1px solid rgba(31, 95, 191, 0.15);
 }
 
 .lifer-bird:last-child {
@@ -5984,7 +5986,7 @@ details.about-section[open] .about-chevron {
 }
 
 .hotspot-for-you strong {
-    color: var(--lifer-text, #7B1FA2);
+    color: var(--lifer-text, #1F5FBF);
 }
 
 .hotspot-details-toggle {
@@ -6214,7 +6216,7 @@ details.about-section[open] .about-chevron {
 .highlight-segment:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 2px; }
 
 .highlight-segment.rare { background: var(--rare-bg, rgba(230, 81, 0, 0.1)); color: var(--rare-text, #E65100); }
-.highlight-segment.targets { background: var(--lifer-bg, rgba(123, 31, 162, 0.08)); color: var(--lifer-text, #7B1FA2); }
+.highlight-segment.targets { background: var(--lifer-bg, rgba(123, 31, 162, 0.08)); color: var(--lifer-text, #1F5FBF); }
 .highlight-segment.excellent,
 .highlight-segment.good { background: var(--success-bg, rgba(47, 93, 80, 0.1)); color: var(--primary-text); }
 .highlight-segment.fair,
@@ -6363,9 +6365,9 @@ details.about-section[open] .about-chevron {
 [data-theme="dark"] .migration-alert-banner.peak { background: color-mix(in srgb, #FFB74D 14%, var(--card-bg)); color: var(--text-primary); }
 [data-theme="dark"] .birding-condition.fair { background: color-mix(in srgb, #FFB74D 14%, var(--card-bg)); color: var(--text-primary); }
 [data-theme="dark"] .weather-badge.clear { background: color-mix(in srgb, #FFB74D 14%, var(--card-bg)); color: var(--text-primary); }
-[data-theme="dark"] .lifer-alert { background: color-mix(in srgb, #CE93D8 14%, var(--card-bg)); color: var(--text-primary); }
-[data-theme="dark"] .lifer-highlight { background: color-mix(in srgb, #CE93D8 14%, var(--card-bg)); color: var(--text-primary); }
-[data-theme="dark"] .species-item.notable.lifer { background: color-mix(in srgb, #CE93D8 14%, var(--card-bg)); color: var(--text-primary); }
+[data-theme="dark"] .lifer-alert { background: color-mix(in srgb, #8DB8FF 14%, var(--card-bg)); color: var(--text-primary); }
+[data-theme="dark"] .lifer-highlight { background: color-mix(in srgb, #8DB8FF 14%, var(--card-bg)); color: var(--text-primary); }
+[data-theme="dark"] .species-item.notable.lifer { background: color-mix(in srgb, #8DB8FF 14%, var(--card-bg)); color: var(--text-primary); }
 [data-theme="dark"] .weather-badge { background: color-mix(in srgb, #64B5F6 14%, var(--card-bg)); color: var(--text-primary); }
 [data-theme="dark"] .weather-badge.rain { background: color-mix(in srgb, #64B5F6 14%, var(--card-bg)); color: var(--text-primary); }
 [data-theme="dark"] .weather-badge.cloudy { background: color-mix(in srgb, #90A4AE 14%, var(--card-bg)); color: var(--text-primary); }
@@ -6382,9 +6384,9 @@ details.about-section[open] .about-chevron {
     :root:not([data-theme="light"]) .migration-alert-banner.peak { background: color-mix(in srgb, #FFB74D 14%, var(--card-bg)); color: var(--text-primary); }
     :root:not([data-theme="light"]) .birding-condition.fair { background: color-mix(in srgb, #FFB74D 14%, var(--card-bg)); color: var(--text-primary); }
     :root:not([data-theme="light"]) .weather-badge.clear { background: color-mix(in srgb, #FFB74D 14%, var(--card-bg)); color: var(--text-primary); }
-    :root:not([data-theme="light"]) .lifer-alert { background: color-mix(in srgb, #CE93D8 14%, var(--card-bg)); color: var(--text-primary); }
-    :root:not([data-theme="light"]) .lifer-highlight { background: color-mix(in srgb, #CE93D8 14%, var(--card-bg)); color: var(--text-primary); }
-    :root:not([data-theme="light"]) .species-item.notable.lifer { background: color-mix(in srgb, #CE93D8 14%, var(--card-bg)); color: var(--text-primary); }
+    :root:not([data-theme="light"]) .lifer-alert { background: color-mix(in srgb, #8DB8FF 14%, var(--card-bg)); color: var(--text-primary); }
+    :root:not([data-theme="light"]) .lifer-highlight { background: color-mix(in srgb, #8DB8FF 14%, var(--card-bg)); color: var(--text-primary); }
+    :root:not([data-theme="light"]) .species-item.notable.lifer { background: color-mix(in srgb, #8DB8FF 14%, var(--card-bg)); color: var(--text-primary); }
     :root:not([data-theme="light"]) .weather-badge { background: color-mix(in srgb, #64B5F6 14%, var(--card-bg)); color: var(--text-primary); }
     :root:not([data-theme="light"]) .weather-badge.rain { background: color-mix(in srgb, #64B5F6 14%, var(--card-bg)); color: var(--text-primary); }
     :root:not([data-theme="light"]) .weather-badge.cloudy { background: color-mix(in srgb, #90A4AE 14%, var(--card-bg)); color: var(--text-primary); }
@@ -6400,7 +6402,7 @@ details.about-section[open] .about-chevron {
 .hotspot-badges .lifer-badge {
     white-space: normal; /* full lifer list wraps instead of truncating */
     text-align: start;
-    background: #7B1FA2; /* solid: white text stays 7:1 in both themes */
+    background: #1F5FBF; /* solid: white text stays 7:1 in both themes */
     color: #FFFFFF;
     font-size: 0.85rem;
     padding: 6px 12px;
@@ -6436,4 +6438,24 @@ details.about-section[open] .about-chevron {
     white-space: normal;
     overflow: visible;
     text-overflow: clip;
+}
+
+/* Dark mode: lifer fills are light blue, so their text goes dark */
+[data-theme="dark"] .lifer-badge,
+[data-theme="dark"] .route-lifer-badge,
+[data-theme="dark"] #filterLifers[aria-pressed="true"],
+[data-theme="dark"] #routeFilterLifers[aria-pressed="true"],
+[data-theme="dark"] .hotspot-badges .lifer-badge {
+    background: #8DB8FF;
+    color: #0E1A2B;
+}
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .lifer-badge,
+    :root:not([data-theme="light"]) .route-lifer-badge,
+    :root:not([data-theme="light"]) #filterLifers[aria-pressed="true"],
+    :root:not([data-theme="light"]) #routeFilterLifers[aria-pressed="true"],
+    :root:not([data-theme="light"]) .hotspot-badges .lifer-badge {
+        background: #8DB8FF;
+        color: #0E1A2B;
+    }
 }
