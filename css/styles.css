@@ -111,7 +111,7 @@
         --season-spring: #66BB6A;
         --season-fall: #FFD54F;
         --season-winter: #90A4AE;
-        --error-badge-bg: #ef5350;
+        --error-badge-bg: #C62828; /* white text 5.6:1 */
         --error-badge-text: #fff;
     }
 }
@@ -168,7 +168,7 @@
     --season-spring: #66BB6A;
     --season-fall: #FFD54F;
     --season-winter: #90A4AE;
-    --error-badge-bg: #ef5350;
+    --error-badge-bg: #C62828; /* white text 5.6:1 */
     --error-badge-text: #fff;
     --confidence-high: #66BB6A;
     --confidence-medium: #FFB74D;
