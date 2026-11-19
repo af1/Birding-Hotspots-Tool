@@ -1707,6 +1707,7 @@ class BirdingHotspotsApp {
 
             if (result.imported > 0) {
                 this.updateLifeListCount();
+                this.populateTargetList();
                 this.showSuccessToast(result.replaced
                     ? `Replaced your list with ${result.imported} species`
                     : `Imported ${result.imported} species to your ${this.getLifeListLabel()}`);
@@ -1803,6 +1804,7 @@ class BirdingHotspotsApp {
         storage.setLifeListLabel('');
         if (this.elements.lifeListLabel) this.elements.lifeListLabel.value = '';
         this.updateLifeListCount();
+        this.populateTargetList();
         this.showSuccessToast('List cleared');
     }
 
@@ -1872,7 +1874,12 @@ class BirdingHotspotsApp {
     populateTargetList() {
         const select = this.elements.targetList;
         clearElement(select);
-        select.append(new Option('Imported list above', 'imported'));
+
+        // No list at all: say so instead of offering an empty choice
+        const imported = this.lifeListService.hasLifeList()
+            ? `My imported list (${this.lifeListService.getCount()})`
+            : 'No list yet: import one under My Life List';
+        select.append(new Option(imported, 'imported'));
         for (const list of sortLists(this.regionLists)) {
             select.append(new Option(`${list.label} (${list.codes.size || list.names.size})`, list.key));
         }
@@ -3159,7 +3166,7 @@ class BirdingHotspotsApp {
                 parts.push(`${formatDistance(hotspot.distance)} away`);
             }
             const targets = this.hasTargetList() ? hotspot.birds.filter(b => b.isLifer).length : 0;
-            if (targets > 0) parts.push(`${targets} ${targets === 1 ? 'target' : 'targets'}`);
+            if (targets > 0) parts.push(`${targets} ${targets === 1 ? 'lifer' : 'lifers'}`);
             why.textContent = parts.join(' · ');
             card.appendChild(why);
 
@@ -3218,8 +3225,8 @@ class BirdingHotspotsApp {
             },
             {
                 panel: this.elements.liferAlert, cls: 'targets', icon: null,
-                title: lifers.length ? `${lifers.length} ${lifers.length === 1 ? 'target' : 'targets'}` : null,
-                sub: lifers.slice(0, 2).map(l => l.comName).join(', ') + (lifers.length > 2 ? ` +${lifers.length - 2}` : '')
+                title: lifers.length ? `${lifers.length} ${lifers.length === 1 ? 'lifer' : 'lifers'}` : null,
+                sub: lifers.map(l => l.comName).join(', ')
             },
             {
                 panel: this.elements.weatherSummary, cls: conditions ? conditions.rating : 'weather', icon: 'sun',
@@ -6409,20 +6416,6 @@ class BirdingHotspotsApp {
         const badges = document.createElement('div');
         badges.className = 'hotspot-badges';
 
-        if (hasNotable) {
-            const rareBadge = document.createElement('span');
-            rareBadge.className = 'rare-badge';
-            rareBadge.appendChild(createSVGIcon('fire', 14));
-            const extra = notableBirds.length > 1 ? ` +${notableBirds.length - 1}` : '';
-            rareBadge.appendChild(document.createTextNode(' RARE · '));
-            const rareName = document.createElement('span');
-            rareName.className = 'badge-name';
-            rareName.textContent = `${notableBirds[0].comName}${extra}`;
-            rareBadge.appendChild(rareName);
-            this._describe(rareBadge, 'Has a species flagged as rare or unusual for this area on eBird');
-            badges.appendChild(rareBadge);
-        }
-
         if (hasLifers) {
             const liferBadge = document.createElement('span');
             liferBadge.className = 'lifer-badge';
@@ -6437,10 +6430,35 @@ class BirdingHotspotsApp {
             liferBadge.appendChild(starSvg);
             const liferText = document.createElement('span');
             liferText.className = 'badge-name';
-            liferText.textContent = ` ${liferBirds.length} ${liferBirds.length === 1 ? 'target' : 'targets'}`;
+            // Count plus every lifer by name: "2 lifers: Black Scoter, Turkey Vulture"
+            const noun = this.getTargetRegionList() ? 'new' : (liferBirds.length === 1 ? 'lifer' : 'lifers');
+            liferText.textContent = ` ${liferBirds.length} ${noun}: ${liferBirds.map(b => b.comName).join(', ')}`;
             liferBadge.appendChild(liferText);
             this._describe(liferBadge, `Has species that are not on your ${listLabel}`);
             badges.appendChild(liferBadge);
+        }
+
+        // Every card states its lifer count once a list is loaded, even when zero
+        if (!hasLifers && this.hasTargetList()) {
+            const none = document.createElement('span');
+            none.className = 'lifer-badge lifer-badge-none';
+            none.textContent = this.getTargetRegionList() ? 'Nothing new' : 'No lifers';
+            this._describe(none, `Every species reported here is already on your ${listLabel}`);
+            badges.appendChild(none);
+        }
+
+        if (hasNotable) {
+            const rareBadge = document.createElement('span');
+            rareBadge.className = 'rare-badge';
+            rareBadge.appendChild(createSVGIcon('fire', 14));
+            const extra = notableBirds.length > 1 ? ` +${notableBirds.length - 1}` : '';
+            rareBadge.appendChild(document.createTextNode(' Rare · '));
+            const rareName = document.createElement('span');
+            rareName.className = 'badge-name';
+            rareName.textContent = `${notableBirds[0].comName}${extra}`;
+            rareBadge.appendChild(rareName);
+            this._describe(rareBadge, 'Has a species flagged as rare or unusual for this area on eBird');
+            badges.appendChild(rareBadge);
         }
 
         const freshnessDays = getHotspotFreshnessDays(hotspot);

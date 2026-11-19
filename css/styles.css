@@ -5637,6 +5637,7 @@ details.about-section[open] .about-chevron {
 }
 
 .sort-row-label {
+    min-width: 4.5em; /* "Sort by" and "New to" selects line up */
     font-size: 0.9rem;
     font-weight: 600;
     color: var(--text-secondary);
@@ -6353,4 +6354,86 @@ details.about-section[open] .about-chevron {
         padding: 12px 2px;
         margin: -12px 0;
     }
+}
+
+/* Dark mode: tint result panels from the card color; pastel fills hid light text */
+[data-theme="dark"] .notable-highlight { background: color-mix(in srgb, #FFB74D 14%, var(--card-bg)); color: var(--text-primary); }
+[data-theme="dark"] .rare-bird-alert { background: color-mix(in srgb, #FFB74D 14%, var(--card-bg)); color: var(--text-primary); }
+[data-theme="dark"] .migration-alert-banner { background: color-mix(in srgb, #FFB74D 14%, var(--card-bg)); color: var(--text-primary); }
+[data-theme="dark"] .migration-alert-banner.peak { background: color-mix(in srgb, #FFB74D 14%, var(--card-bg)); color: var(--text-primary); }
+[data-theme="dark"] .birding-condition.fair { background: color-mix(in srgb, #FFB74D 14%, var(--card-bg)); color: var(--text-primary); }
+[data-theme="dark"] .weather-badge.clear { background: color-mix(in srgb, #FFB74D 14%, var(--card-bg)); color: var(--text-primary); }
+[data-theme="dark"] .lifer-alert { background: color-mix(in srgb, #CE93D8 14%, var(--card-bg)); color: var(--text-primary); }
+[data-theme="dark"] .lifer-highlight { background: color-mix(in srgb, #CE93D8 14%, var(--card-bg)); color: var(--text-primary); }
+[data-theme="dark"] .species-item.notable.lifer { background: color-mix(in srgb, #CE93D8 14%, var(--card-bg)); color: var(--text-primary); }
+[data-theme="dark"] .weather-badge { background: color-mix(in srgb, #64B5F6 14%, var(--card-bg)); color: var(--text-primary); }
+[data-theme="dark"] .weather-badge.rain { background: color-mix(in srgb, #64B5F6 14%, var(--card-bg)); color: var(--text-primary); }
+[data-theme="dark"] .weather-badge.cloudy { background: color-mix(in srgb, #90A4AE 14%, var(--card-bg)); color: var(--text-primary); }
+[data-theme="dark"] .weather-badge.snow { background: color-mix(in srgb, #90A4AE 14%, var(--card-bg)); color: var(--text-primary); }
+[data-theme="dark"] .weather-badge.storm { background: color-mix(in srgb, #90A4AE 14%, var(--card-bg)); color: var(--text-primary); }
+[data-theme="dark"] .quality-badge.new { background: color-mix(in srgb, #90A4AE 14%, var(--card-bg)); color: var(--text-primary); }
+[data-theme="dark"] .quality-badge.active { background: color-mix(in srgb, #FFB74D 14%, var(--card-bg)); color: var(--text-primary); }
+[data-theme="dark"] .quality-badge.established { background: color-mix(in srgb, #66BB6A 14%, var(--card-bg)); color: var(--text-primary); }
+[data-theme="dark"] .favorite-hotspot-btn:hover { background: color-mix(in srgb, #FFB74D 14%, var(--card-bg)); color: var(--text-primary); }
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .notable-highlight { background: color-mix(in srgb, #FFB74D 14%, var(--card-bg)); color: var(--text-primary); }
+    :root:not([data-theme="light"]) .rare-bird-alert { background: color-mix(in srgb, #FFB74D 14%, var(--card-bg)); color: var(--text-primary); }
+    :root:not([data-theme="light"]) .migration-alert-banner { background: color-mix(in srgb, #FFB74D 14%, var(--card-bg)); color: var(--text-primary); }
+    :root:not([data-theme="light"]) .migration-alert-banner.peak { background: color-mix(in srgb, #FFB74D 14%, var(--card-bg)); color: var(--text-primary); }
+    :root:not([data-theme="light"]) .birding-condition.fair { background: color-mix(in srgb, #FFB74D 14%, var(--card-bg)); color: var(--text-primary); }
+    :root:not([data-theme="light"]) .weather-badge.clear { background: color-mix(in srgb, #FFB74D 14%, var(--card-bg)); color: var(--text-primary); }
+    :root:not([data-theme="light"]) .lifer-alert { background: color-mix(in srgb, #CE93D8 14%, var(--card-bg)); color: var(--text-primary); }
+    :root:not([data-theme="light"]) .lifer-highlight { background: color-mix(in srgb, #CE93D8 14%, var(--card-bg)); color: var(--text-primary); }
+    :root:not([data-theme="light"]) .species-item.notable.lifer { background: color-mix(in srgb, #CE93D8 14%, var(--card-bg)); color: var(--text-primary); }
+    :root:not([data-theme="light"]) .weather-badge { background: color-mix(in srgb, #64B5F6 14%, var(--card-bg)); color: var(--text-primary); }
+    :root:not([data-theme="light"]) .weather-badge.rain { background: color-mix(in srgb, #64B5F6 14%, var(--card-bg)); color: var(--text-primary); }
+    :root:not([data-theme="light"]) .weather-badge.cloudy { background: color-mix(in srgb, #90A4AE 14%, var(--card-bg)); color: var(--text-primary); }
+    :root:not([data-theme="light"]) .weather-badge.snow { background: color-mix(in srgb, #90A4AE 14%, var(--card-bg)); color: var(--text-primary); }
+    :root:not([data-theme="light"]) .weather-badge.storm { background: color-mix(in srgb, #90A4AE 14%, var(--card-bg)); color: var(--text-primary); }
+    :root:not([data-theme="light"]) .quality-badge.new { background: color-mix(in srgb, #90A4AE 14%, var(--card-bg)); color: var(--text-primary); }
+    :root:not([data-theme="light"]) .quality-badge.active { background: color-mix(in srgb, #FFB74D 14%, var(--card-bg)); color: var(--text-primary); }
+    :root:not([data-theme="light"]) .quality-badge.established { background: color-mix(in srgb, #66BB6A 14%, var(--card-bg)); color: var(--text-primary); }
+    :root:not([data-theme="light"]) .favorite-hotspot-btn:hover { background: color-mix(in srgb, #FFB74D 14%, var(--card-bg)); color: var(--text-primary); }
+}
+
+/* Lifers lead each card; rare is secondary context */
+.hotspot-badges .lifer-badge {
+    white-space: normal; /* full lifer list wraps instead of truncating */
+    text-align: start;
+    background: #7B1FA2; /* solid: white text stays 7:1 in both themes */
+    color: #FFFFFF;
+    font-size: 0.85rem;
+    padding: 6px 12px;
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+.hotspot-badges .lifer-badge-none {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    font-weight: 600;
+}
+
+.hotspot-badges .rare-badge {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+.hotspot-badges .rare-badge svg {
+    color: var(--alert-color);
+}
+
+/* Lifer names in species lists: readable purple per theme */
+.species-item.lifer { color: var(--lifer-badge-text); }
+
+/* Lifer chip lists every name: wrap rather than ellipsize */
+.highlight-segment.targets .highlight-sub {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
 }

@@ -356,6 +356,12 @@
                     <option value="recency">Freshest sightings</option>
                 </select>
             </div>
+            <div class="sort-row target-list-row">
+                <label for="targetList" class="sort-row-label">New to</label>
+                <select id="targetList" class="select-input sort-row-select">
+                    <option value="imported">Imported list</option>
+                </select>
+            </div>
             <button type="button" id="generateReport" class="btn btn-primary btn-large">
                 <svg viewBox="0 0 24 24" width="24" height="24">
                     <path fill="currentColor" d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
@@ -562,12 +568,6 @@
                         </button>
                     </div>
                     <p id="lifeListHelp" class="help-text-small">Go to <a href="https://ebird.org/lifelist" target="_blank" rel="noopener noreferrer">My eBird &gt; Life List</a>, choose a region and time period at the top of the page (for example a state and this year to make a year list), then click <strong>Download</strong> at the bottom. Importing a new file replaces the current list. For "Download My Data" files, use <strong>Import all my eBird data</strong> below.</p>
-                    <div class="input-group target-list-group">
-                        <label for="targetList" class="input-label">Count birds as new to</label>
-                        <select id="targetList" class="select-input">
-                            <option value="imported">Imported list above</option>
-                        </select>
-                    </div>
                     <div class="life-list-actions">
                         <label class="btn btn-secondary btn-small life-list-import-btn">
                             <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
