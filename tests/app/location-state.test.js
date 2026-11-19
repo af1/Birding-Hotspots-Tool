@@ -698,3 +698,16 @@ export async function testRouteStartCurrentLocationClearsPriorValidationWhilePen
 export async function testRouteEndCurrentLocationClearsPriorValidationWhilePending() {
     await exerciseRouteCurrentLocationClearsPriorValidation('end');
 }
+
+// Picking a recent location fills the form; only Find Hotspots starts a search
+export async function testRecentSearchFillsLocationWithoutSearching() {
+    const app = makeBareApp();
+    app.toggleInputMode = () => {};
+    let searched = false;
+    app.handleGenerateReport = () => { searched = true; };
+
+    app.useRecentSearch({ lat: 42.65, lng: -73.75, address: 'Albany, NY' });
+
+    assert(app.elements.latitude.value === 42.65, 'Latitude should be filled');
+    assert(!searched, 'Clicking a recent location must not start a search');
+}

@@ -2217,7 +2217,7 @@ class BirdingHotspotsApp {
     }
 
     /**
-     * Use a recent search to populate the form and run search
+     * Use a recent search to populate the form; Find Hotspots runs the search
      */
     useRecentSearch(search) {
         // Switch to GPS mode and populate coordinates
@@ -2229,9 +2229,6 @@ class BirdingHotspotsApp {
 
         this.elements.latitude.value = search.lat;
         this.elements.longitude.value = search.lng;
-
-        // Trigger validation and search
-        this.handleGenerateReport();
     }
 
     /**
