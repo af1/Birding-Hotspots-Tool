@@ -711,3 +711,21 @@ export async function testRecentSearchFillsLocationWithoutSearching() {
     assert(app.elements.latitude.value === 42.65, 'Latitude should be filled');
     assert(!searched, 'Clicking a recent location must not start a search');
 }
+
+// Opening a shared link restores the form; only Find Hotspots starts a search
+export async function testSharedLinkFillsFormWithoutSearching() {
+    const app = makeBareApp();
+    app.toggleInputMode = () => {};
+    app.syncDriveMinutes = () => {};
+    app.restoreCachedResults = () => false;
+    let searched = false;
+    app.handleGenerateReport = () => { searched = true; };
+
+    context.URLSearchParams = URLSearchParams;
+    context.window.location = { hash: '#lat=42.6500&lng=-73.7500' };
+    context.storage.getApiKey = () => 'saved-key';
+    app.loadFromURL();
+
+    assert(app.elements.latitude.value === 42.65, 'Latitude should be restored from the link');
+    assert(!searched, 'Opening a shared link must not start a search');
+}

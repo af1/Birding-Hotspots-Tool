@@ -2306,16 +2306,9 @@ class BirdingHotspotsApp {
             if (countRadio) countRadio.checked = true;
         }
 
-        // Reload of the same link: reuse this tab's results instead of re-fetching
-        if (this.restoreCachedResults()) {
-            return;
-        }
-
-        // Auto-trigger search if API key is already saved
-        const savedKey = storage.getApiKey();
-        if (savedKey) {
-            this.handleGenerateReport();
-        }
+        // Reload of the same link: reuse this tab's results instead of re-fetching.
+        // Otherwise just restore the form; Find Hotspots starts the search.
+        this.restoreCachedResults();
     }
 
     /**
