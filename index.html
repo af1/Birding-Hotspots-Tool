@@ -460,6 +460,14 @@
                                         <span class="radio-desc">Prioritize hotspots with the most recently reported lifers and notable species</span>
                                     </div>
                                 </label>
+                                <label class="radio-label radio-card">
+                                    <input type="radio" name="sortMethod" value="newbirds">
+                                    <span class="radio-custom"></span>
+                                    <div class="radio-content">
+                                        <span class="radio-title">Most New Birds</span>
+                                        <span class="radio-desc">Prioritize hotspots with the most species missing from the list you pick under My Life List</span>
+                                    </div>
+                                </label>
                             </div>
                         </fieldset>
                     </div>
@@ -597,7 +605,23 @@
                             Clear
                         </button>
                     </div>
-                    <p id="lifeListHelp" class="help-text-small">Go to <a href="https://ebird.org/lifelist" target="_blank" rel="noopener noreferrer">My eBird &gt; Life List</a>, choose a region and time period at the top of the page (for example a state and this year to make a year list), then click <strong>Download</strong> at the bottom. Importing a new file replaces the current list. Do not use "Download My Data": that is your full checklist history and will be rejected.</p>
+                    <p id="lifeListHelp" class="help-text-small">Go to <a href="https://ebird.org/lifelist" target="_blank" rel="noopener noreferrer">My eBird &gt; Life List</a>, choose a region and time period at the top of the page (for example a state and this year to make a year list), then click <strong>Download</strong> at the bottom. Importing a new file replaces the current list. For "Download My Data" files, use <strong>Import all my eBird data</strong> below.</p>
+                    <div class="input-group target-list-group">
+                        <label for="targetList" class="input-label">Count birds as new to</label>
+                        <select id="targetList" class="select-input">
+                            <option value="imported">Imported list above</option>
+                        </select>
+                    </div>
+                    <div class="life-list-actions">
+                        <label class="btn btn-secondary btn-small life-list-import-btn">
+                            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                                <path fill="currentColor" d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/>
+                            </svg>
+                            Import all my eBird data
+                            <input type="file" id="importEbirdData" accept=".csv" hidden>
+                        </label>
+                    </div>
+                    <p class="help-text-small">For worldwide, ABA, country, state and county lists in one go: on eBird open <a href="https://ebird.org/downloadMyData" target="_blank" rel="noopener noreferrer">Download My Data</a>, unzip the email attachment and import <strong>MyEBirdData.csv</strong>. It is read in this browser and never uploaded.</p>
                 </div>
             </section>
 
@@ -638,6 +662,7 @@
                                     <option value="distance">Sort: Closest</option>
                                     <option value="driving">Sort: Shortest drive</option>
                                     <option value="recency">Sort: Freshest sightings</option>
+                                    <option value="newbirds">Sort: Most new birds</option>
                                 </select>
                             </div>
                             <div class="popover-anchor" id="filtersAnchor">

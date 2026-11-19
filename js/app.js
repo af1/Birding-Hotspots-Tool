@@ -21,6 +21,7 @@ import { buildRouteSamplePoints, dedupeHotspotsById, filterHotspotsByRouteDistan
 import { findDriveHotspots } from './services/drive-time-search.js';
 import { generateGPX, generateHotspotsGPX, downloadGPX } from './services/gpx-generator.js';
 import { applyHotspotFilters } from './services/hotspot-filters.js';
+import { parseEbirdData, labelLists, sortLists, regionContains, saveRegionLists, loadRegionLists } from './services/region-lists.js';
 import { LifeListService, collectLifersAcrossHotspots, formatLiferTargetsText } from './services/life-list.js';
 import { computeQuickPicks } from './services/quick-picks.js';
 import { buildRouteShareHash, parseRouteShareHash } from './utils/share-link.js';
@@ -76,6 +77,7 @@ class BirdingHotspotsApp {
 
         // Life list service for lifer detection
         this.lifeListService = new LifeListService();
+        this.regionLists = loadRegionLists();
         this.taxonomy = []; // Cached taxonomy for CSV import
 
         // Cache DOM elements
@@ -202,6 +204,8 @@ class BirdingHotspotsApp {
             lifeListCount: document.getElementById('lifeListCount'),
             lifeListLabel: document.getElementById('lifeListLabel'),
             importLifeList: document.getElementById('importLifeList'),
+            importEbirdData: document.getElementById('importEbirdData'),
+            targetList: document.getElementById('targetList'),
             clearLifeList: document.getElementById('clearLifeList'),
             // Search type selection (Step 1)
             locationSearchBtn: document.getElementById('locationSearchBtn'),
@@ -506,6 +510,14 @@ class BirdingHotspotsApp {
         // Life list collapsible toggle and actions
         this.elements.lifeListToggle.addEventListener('click', () => this.toggleLifeList());
         this.elements.importLifeList.addEventListener('change', (e) => this.handleLifeListImport(e));
+
+        // Full eBird data import and the "new to which list" picker
+        this.elements.importEbirdData.addEventListener('change', (e) => this.handleEbirdDataImport(e));
+        this.elements.targetList.addEventListener('change', () => {
+            storage.setTargetList(this.elements.targetList.value);
+            this.updateLifeListCount();
+        });
+        this.populateTargetList();
         this.elements.clearLifeList.addEventListener('click', () => this.handleClearLifeList());
         if (this.elements.lifeListLabel) {
             this.elements.lifeListLabel.addEventListener('change', () => {
@@ -1744,6 +1756,17 @@ class BirdingHotspotsApp {
      * then a download using the key in the form (a search need not have run
      * yet). Any failure is a warning, not an error: names still match.
      */
+    /**
+     * eBird client for imports: the search client, or one built from the key field
+     */
+    getImportApi() {
+        if (this.ebirdApi) {
+            return this.ebirdApi;
+        }
+        const validation = validateApiKey(this.elements.apiKey.value);
+        return validation.valid ? new EBirdAPI(validation.apiKey) : null;
+    }
+
     async ensureTaxonomyForImport() {
         if (this.taxonomy.length > 0) return;
 
@@ -1811,17 +1834,112 @@ class BirdingHotspotsApp {
     /**
      * Update the life list count badge in the UI
      */
+    /**
+     * Region list chosen in "Count birds as new to", or null for the imported list
+     */
+    getTargetRegionList() {
+        const key = storage.getTargetList();
+        return this.regionLists.find(l => l.key === key) || null;
+    }
+
+    /**
+     * True when some list is active for new-bird detection
+     */
+    hasTargetList() {
+        return this.getTargetRegionList() !== null || this.lifeListService.hasLifeList();
+    }
+
+    /**
+     * Process a hotspot's observations, flagging birds new to the active list.
+     * Region lists only apply inside their region: a bird at a hotspot
+     * outside Albany County is never "new to Albany County".
+     */
+    flagNewBirds(hotspot, observations, notableSpecies) {
+        const region = this.getTargetRegionList();
+        if (!region) {
+            return processObservations(observations, notableSpecies,
+                this.lifeListService.getLifeListCodes(), this.lifeListService.getLifeListNames());
+        }
+
+        const birds = processObservations(observations, notableSpecies, region.codes, region.names);
+        if (!regionContains(region, hotspot)) {
+            birds.forEach(b => { b.isLifer = false; });
+        }
+        return birds;
+    }
+
+    /**
+     * Fill the "Count birds as new to" select: imported list, then region lists broad to narrow
+     */
+    populateTargetList() {
+        const select = this.elements.targetList;
+        clearElement(select);
+        select.append(new Option('Imported list above', 'imported'));
+        for (const list of sortLists(this.regionLists)) {
+            select.append(new Option(`${list.label} (${list.codes.size || list.names.size})`, list.key));
+        }
+
+        const saved = storage.getTargetList();
+        select.value = [...select.options].some(o => o.value === saved) ? saved : 'imported';
+    }
+
+    /**
+     * Import MyEBirdData.csv: derive world/ABA/country/state/county lists,
+     * label them via eBird region names, and store them locally.
+     */
+    async handleEbirdDataImport(e) {
+        const file = e.target.files[0];
+        e.target.value = '';
+        if (!file) {
+            return;
+        }
+        if (file.size > CONFIG.EBIRD_DATA_MAX_BYTES) {
+            this.showError('That file is larger than 200MB, which is too big to read in the browser.', { report: false });
+            return;
+        }
+
+        const api = this.getImportApi();
+        if (!api) {
+            this.showError('Enter your eBird API key first; it is used to look up state and county names.', { report: false });
+            return;
+        }
+
+        try {
+            await this.ensureTaxonomyForImport();
+            const { lists, rows, error } = parseEbirdData(await file.text(), this.taxonomy);
+            if (error) {
+                this.showError(error, { report: false });
+                return;
+            }
+
+            const labeled = await labelLists(lists, (type, parent) => api.getSubregions(type, parent));
+            saveRegionLists(labeled);
+            this.regionLists = loadRegionLists();
+            this.populateTargetList();
+            this.updateLifeListCount();
+            this.showSuccessToast(`Built ${labeled.length} lists from ${rows.toLocaleString()} sightings`);
+        } catch (err) {
+            console.error('eBird data import error:', err);
+            this.showError('Could not read that eBird data file.');
+        }
+    }
+
     updateLifeListCount() {
         const count = this.lifeListService.getCount();
         const label = storage.getLifeListLabel();
-        this.elements.lifeListCount.textContent = label && count > 0
-            ? `${count} species · ${label}`
-            : `${count} species`;
+        const region = this.getTargetRegionList();
+        if (region) {
+            this.elements.lifeListCount.textContent = `${region.codes.size || region.names.size} species · ${region.label}`;
+        } else {
+            this.elements.lifeListCount.textContent = label && count > 0
+                ? `${count} species · ${label}`
+                : `${count} species`;
+        }
         this.elements.clearLifeList.disabled = count === 0;
 
-        // Show/hide lifer optimize section based on life list
+        // Show/hide lifer optimize section based on the active list
         if (this.elements.liferOptimizeSection) {
-            if (count > 0) {
+            if (this.hasTargetList()) {
                 this.elements.liferOptimizeSection.classList.remove('hidden');
             } else {
                 this.elements.liferOptimizeSection.classList.add('hidden');
@@ -2761,9 +2879,6 @@ class BirdingHotspotsApp {
 
         this.updateLoading('Building hotspot details...', 92);
 
-        // Get life list codes and names for lifer detection
-        const lifeListCodes = this.lifeListService.getLifeListCodes();
-        const lifeListNames = this.lifeListService.getLifeListNames();
 
         // Process results (fast, no waiting)
         return hotspots.map((hotspot, i) => {
@@ -2771,7 +2886,7 @@ class BirdingHotspotsApp {
             const addrResult = allAddresses[i];
             const hotspotInfo = allHotspotInfo[i];
             const distance = calculateDistance(origin.lat, origin.lng, hotspot.lat, hotspot.lng);
-            const birds = processObservations(observations, notableSpecies, lifeListCodes, lifeListNames);
+            const birds = this.flagNewBirds(hotspot, observations, notableSpecies);
             const drivingRoute = drivingRoutes[i];
             const weather = weatherData[i] || null;
 
@@ -2809,6 +2924,10 @@ class BirdingHotspotsApp {
                 const distB = b.drivingDistance ?? b.distance;
                 return distA - distB;
             });
+        } else if (method === 'newbirds') {
+            // Most species missing from the chosen list; ties go to richer hotspots
+            const newCount = h => (h.birds || []).filter(b => b.isLifer).length;
+            return [...hotspots].sort((a, b) => newCount(b) - newCount(a) || b.speciesCount - a.speciesCount);
         } else if (method === 'recency') {
             // Prioritize hotspots whose freshest lifer/notable sighting is most recent
             return [...hotspots].sort((a, b) => getHotspotFreshnessDays(a) - getHotspotFreshnessDays(b));
@@ -3039,7 +3158,7 @@ class BirdingHotspotsApp {
             } else if (hotspot.distance != null) {
                 parts.push(`${formatDistance(hotspot.distance)} away`);
             }
-            const targets = this.lifeListService.hasLifeList() ? hotspot.birds.filter(b => b.isLifer).length : 0;
+            const targets = this.hasTargetList() ? hotspot.birds.filter(b => b.isLifer).length : 0;
             if (targets > 0) parts.push(`${targets} ${targets === 1 ? 'target' : 'targets'}`);
             why.textContent = parts.join(' · ');
             card.appendChild(why);
@@ -3087,7 +3206,7 @@ class BirdingHotspotsApp {
         const conditions = weatherData.length ? getOverallBirdingConditions(weatherData) : null;
         const rareCodes = new Set((this.notableObservations || []).map(o => o.speciesCode));
         const freshestRare = [...(this.notableObservations || [])].sort((a, b) => new Date(b.obsDt) - new Date(a.obsDt))[0];
-        const lifers = this.lifeListService.hasLifeList() ? sortBirdsByRecency(collectLifersAcrossHotspots(hotspots)) : [];
+        const lifers = this.hasTargetList() ? sortBirdsByRecency(collectLifersAcrossHotspots(hotspots)) : [];
         const migration = (getSeasonalInsights().migrationAlerts || [])[0] || null;
         const sun = weatherData.find(w => w.sunrise);
 
@@ -3595,7 +3714,7 @@ class BirdingHotspotsApp {
         clearElement(container);
 
         // Only show if user has a life list
-        if (!this.lifeListService.hasLifeList()) {
+        if (!this.hasTargetList()) {
             container.classList.add('hidden');
             return;
         }
@@ -4057,7 +4176,7 @@ class BirdingHotspotsApp {
         const parts = [driveMinutes ? `Within ${driveMinutes} min drive` : `Within ${Math.round(rangeKm * 0.621371)} mi`];
         if (this.searchSubMode !== 'species') {
             parts.push(`Top ${this._checkedValue(this.elements.hotspotsCountRadios, '10')}`);
-            const sortLabels = { species: 'Most species', distance: 'Closest', driving: 'Shortest drive', recency: 'Freshest sightings' };
+            const sortLabels = { species: 'Most species', distance: 'Closest', driving: 'Shortest drive', recency: 'Freshest sightings', newbirds: 'Most new birds' };
             parts.push(sortLabels[this._checkedValue(this.elements.sortMethodRadios, 'species')] || 'Most species');
         }
         el.textContent = parts.join(' · ');
@@ -4869,9 +4988,6 @@ class BirdingHotspotsApp {
                 this.partialFailures.push('notable species data');
             }
 
-            // Get life list codes for lifer detection
-            const lifeListCodes = this.lifeListService.getLifeListCodes();
-            const lifeListNames = this.lifeListService.getLifeListNames();
 
             // Get target species codes from validated list
             this.routeTargetSpeciesCodes = this.routeTargetSpeciesList?.map(s => s.speciesCode) || [];
@@ -4937,7 +5053,7 @@ class BirdingHotspotsApp {
                         hotspot.locId,
                         CONFIG.DEFAULT_DAYS_BACK
                     );
-                    const birds = processObservations(observations, notableSpecies, lifeListCodes, lifeListNames);
+                    const birds = this.flagNewBirds(hotspot, observations, notableSpecies);
 
                     return {
                         ...hotspot,
@@ -4997,7 +5113,7 @@ class BirdingHotspotsApp {
 
             // Sort hotspots: target species first, then (if lifer-optimize mode
             // is on) potential lifers, then species count, closest as tiebreak
-            const boostLifers = !!(this.elements.liferOptimizeMode?.checked && this.lifeListService.hasLifeList());
+            const boostLifers = !!(this.elements.liferOptimizeMode?.checked && this.hasTargetList());
             enrichedHotspots = sortEnrichedRouteHotspots(enrichedHotspots, { targetLocIds, boostLifers });
 
             this.hideLoading();
@@ -5156,7 +5272,7 @@ class BirdingHotspotsApp {
         this.elements.routeHotspotsSection.classList.remove('hidden');
 
         // Auto-select stops with lifers if lifer optimize mode is enabled
-        if (this.elements.liferOptimizeMode?.checked && this.lifeListService.hasLifeList()) {
+        if (this.elements.liferOptimizeMode?.checked && this.hasTargetList()) {
             const cards = this.elements.routeHotspotsList.querySelectorAll('.route-hotspot-card');
             cards.forEach((card, index) => {
                 const hotspot = hotspots[index];
@@ -5268,7 +5384,7 @@ class BirdingHotspotsApp {
         const notableBirds = hotspot.birds ? sortBirdsByRecency(hotspot.birds.filter(b => b.isNotable)) : [];
         const liferBirds = hotspot.birds ? sortBirdsByRecency(hotspot.birds.filter(b => b.isLifer)) : [];
         const hasNotable = notableBirds.length > 0;
-        const hasLifers = this.lifeListService.hasLifeList() && liferBirds.length > 0;
+        const hasLifers = this.hasTargetList() && liferBirds.length > 0;
 
         // Check for target species matches (by species code for reliable matching)
         const targetSpeciesCodes = this.routeTargetSpeciesCodes || [];
@@ -6203,7 +6319,7 @@ class BirdingHotspotsApp {
 
         // Check if there are notable species or lifers
         const hasNotable = hotspot.birds.some(b => b.isNotable);
-        const hasLifers = this.lifeListService.hasLifeList() && hotspot.birds.some(b => b.isLifer);
+        const hasLifers = this.hasTargetList() && hotspot.birds.some(b => b.isLifer);
         const notableBirds = hasNotable ? sortBirdsByRecency(hotspot.birds.filter(b => b.isNotable)) : [];
         const liferBirds = hasLifers ? sortBirdsByRecency(hotspot.birds.filter(b => b.isLifer)) : [];
         const listLabel = this.getLifeListLabel();

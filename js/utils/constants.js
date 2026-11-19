@@ -72,6 +72,9 @@ export const CONFIG = {
     },
 
     // Life list CSV import limits
+    // Full eBird data export (MyEBirdData.csv) for region lists
+    EBIRD_DATA_MAX_BYTES: 200 * 1024 * 1024,
+
     LIFE_LIST_IMPORT: {
         MAX_FILE_SIZE_BYTES: 5 * 1024 * 1024, // 5MB - generous for large world life lists
         MAX_ROWS: 15000 // eBird's taxonomy is ~11,000 species; buffer for subspecies/forms.
@@ -105,7 +108,9 @@ export const CONFIG = {
         ONBOARDED: 'birding_onboarded',
         ITINERARY_START_TIME: 'birding_itinerary_start_time',
         LIFE_LIST_LABEL: 'birding_life_list_label',
-        SEARCH_OPTIONS: 'birding_search_options'
+        SEARCH_OPTIONS: 'birding_search_options',
+        REGION_LISTS: 'birding_region_lists',
+        TARGET_LIST: 'birding_target_list'
     }
 };
 

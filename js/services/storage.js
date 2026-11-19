@@ -11,7 +11,7 @@ const { STORAGE_KEYS } = CONFIG;
  * radio values in index.html.
  */
 export const SEARCH_OPTION_VALUES = {
-    sort: ['species', 'distance', 'driving', 'recency'],
+    sort: ['species', 'distance', 'driving', 'recency', 'newbirds'],
     range: ['16', '32', '50', 'drive'],
     count: ['10', '20', '30'],
     driveMinutes: ['15', '20', '25', '30', '35', '40', '45', '50', '55', '60', '65', '70', '75', '80', '85', '90']
@@ -248,6 +248,29 @@ export const storage = {
      * (e.g. "2026 Minnesota list"). Empty string when unset.
      * @returns {string}
      */
+    /**
+     * Key of the list new birds are counted against ('imported' or a region list key)
+     * @returns {string}
+     */
+    getTargetList() {
+        try {
+            return localStorage.getItem(STORAGE_KEYS.TARGET_LIST) || 'imported';
+        } catch (e) {
+            return 'imported';
+        }
+    },
+
+    /**
+     * @param {string} key - 'imported' or a region list key
+     */
+    setTargetList(key) {
+        try {
+            localStorage.setItem(STORAGE_KEYS.TARGET_LIST, String(key));
+        } catch (e) {
+            console.warn('Could not save target list:', e);
+        }
+    },
+
     getLifeListLabel() {
         try {
             return localStorage.getItem(STORAGE_KEYS.LIFE_LIST_LABEL) || '';

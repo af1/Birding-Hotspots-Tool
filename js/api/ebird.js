@@ -230,6 +230,17 @@ export class EBirdAPI {
      * @param {string} locale - Language code (default 'en')
      * @returns {Promise<Array>} Array of species objects
      */
+    /**
+     * List subregions of a region, e.g. ('subnational2', 'US-NY') -> NY counties
+     * @param {'subnational1'|'subnational2'} type
+     * @param {string} parentCode - Country or state code
+     * @returns {Promise<Array<{code: string, name: string}>>}
+     */
+    async getSubregions(type, parentCode) {
+        const data = await this.fetchWithAuth(`/ref/region/list/${type}/${encodeURIComponent(parentCode)}`, { fmt: 'json' });
+        return data || [];
+    }
+
     async getTaxonomy(locale = 'en') {
         const data = await this.fetchWithAuth('/ref/taxonomy/ebird', {
             fmt: 'json',
