@@ -6987,3 +6987,61 @@ details.about-section[open] .about-chevron {
     text-align: end;
     padding-right: 0;
 }
+
+/* Weather is a detail: one flat line inside an expanded hotspot row */
+.hotspot-card-row .weather-badge,
+[data-theme] .hotspot-card-row .weather-badge {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 14px;
+    padding: 6px 0;
+    margin: 0;
+    background: none;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+}
+
+.hotspot-card-row .weather-main,
+.hotspot-card-row .weather-details,
+.hotspot-card-row .weather-sun-times-badge,
+.hotspot-card-row .weather-main > div {
+    display: contents;
+}
+
+.hotspot-card-row .weather-icon svg {
+    width: 18px;
+    height: 18px;
+}
+
+.hotspot-card-row .weather-temp {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.hotspot-card-row .weather-condition,
+.hotspot-card-row .weather-detail {
+    font-size: inherit;
+    color: inherit;
+    border: 0;
+    padding: 0;
+    margin: 0;
+}
+
+.hotspot-card-row .birding-condition {
+    padding: 1px 8px;
+    font-size: 0.72rem;
+}
+
+/* Beat the dark-mode panel tint; sun times already show in the results summary */
+.hotspot-card-row .weather-badge {
+    background: none !important;
+}
+
+.hotspot-card-row .weather-sun-times-badge {
+    display: none;
+}
