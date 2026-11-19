@@ -6945,7 +6945,8 @@ details.about-section[open] .about-chevron {
 }
 
 .hotspot-row-actions .favorite-hotspot-btn {
-    position: static;
+    position: relative; /* keeps its ::before hit-area on the button, not the whole row */
+    inset: auto;
 }
 
 .hotspot-card-row .hotspot-badges {
@@ -7044,4 +7045,143 @@ details.about-section[open] .about-chevron {
 
 .hotspot-card-row .weather-sun-times-badge {
     display: none;
+}
+
+/* Bird names open eBird; keep their list color, underline on hover */
+.species-link {
+    color: inherit;
+    text-decoration: none;
+}
+
+.species-link:hover,
+.species-link:focus-visible {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+/* Explicit, labeled favorite action */
+.hotspot-row-actions .favorite-hotspot-btn {
+    width: auto;
+    height: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    background: none;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+}
+
+.hotspot-row-actions .favorite-hotspot-btn svg {
+    width: 14px;
+    height: 14px;
+}
+
+.hotspot-row-actions .favorite-hotspot-btn.is-favorite {
+    color: var(--text-primary);
+    border-color: var(--accent-color);
+}
+
+/* Expanded hotspot: meta strip, lifer table, quiet extras */
+.hotspot-meta-line {
+    margin: 0;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    color: var(--text-secondary);
+}
+
+.hotspot-meta-line a,
+.hotspot-meta-line .hotspot-meta-action {
+    color: var(--primary-text);
+    text-decoration: none;
+}
+
+.hotspot-meta-line a:hover {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+/* Favorite reads as an inline action, not a card button */
+.hotspot-meta-line .favorite-hotspot-btn.hotspot-meta-action {
+    position: relative;
+    inset: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    width: auto;
+    height: auto;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    font: inherit;
+    vertical-align: baseline;
+    cursor: pointer;
+}
+
+.hotspot-meta-line .favorite-hotspot-btn.hotspot-meta-action::before {
+    display: none;
+}
+
+.hotspot-meta-line .favorite-hotspot-btn.hotspot-meta-action svg {
+    width: 13px;
+    height: 13px;
+    fill: currentColor;
+}
+
+.hotspot-meta-line .favorite-hotspot-btn.hotspot-meta-action:hover .favorite-hotspot-label {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.hotspot-meta-line .favorite-hotspot-btn.is-favorite {
+    color: var(--accent-color);
+}
+
+.lifer-recency {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.lifer-recency-bar {
+    flex: none;
+    width: 90px;
+    height: 6px;
+    border-radius: 3px;
+    background: linear-gradient(to right, var(--lifer-badge-text) var(--fill, 0%), var(--border-color) var(--fill, 0%));
+}
+
+.hotspot-empty-note,
+.hotspot-rare-line {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.hotspot-rare-line strong {
+    color: var(--alert-color);
+    font-weight: 600;
+}
+
+.hotspot-rare-line .species-link {
+    color: var(--text-primary);
+}
+
+.hotspot-more > summary {
+    cursor: pointer;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    padding: 4px 0;
+}
+
+.hotspot-more > summary:hover {
+    color: var(--text-primary);
+}
+
+.hotspot-more[open] > summary {
+    margin-bottom: 8px;
 }

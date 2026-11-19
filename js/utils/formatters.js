@@ -135,6 +135,17 @@ export function getGoogleMapsRouteUrl(stops) {
  * @param {string} locId - eBird location ID
  * @returns {string} eBird hotspot URL
  */
+/**
+ * eBird species page, e.g. 'blksco' -> https://ebird.org/species/blksco
+ * @param {string} speciesCode - eBird species code
+ * @returns {string}
+ */
+export function getEbirdSpeciesUrl(speciesCode) {
+    // Species codes are alphanumeric (e.g. 'easscr1'); strip anything else
+    const sanitized = String(speciesCode).replace(/[^a-zA-Z0-9]/g, '');
+    return `https://ebird.org/species/${encodeURIComponent(sanitized)}`;
+}
+
 export function getEbirdHotspotUrl(locId) {
     // Sanitize locId to prevent path injection (eBird IDs are alphanumeric with 'L' prefix)
     const sanitizedId = String(locId).replace(/[^a-zA-Z0-9]/g, '');

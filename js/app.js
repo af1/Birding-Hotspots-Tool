@@ -4,7 +4,7 @@
 
 import { CONFIG, ErrorMessages, ErrorTypes, EXPECTED_USER_ERRORS } from './utils/constants.js';
 import { validateCoordinates, validateApiKey, validateAddress, validateFavoriteName } from './utils/validators.js';
-import { calculateDistance, formatDistance, formatDuration, getGoogleMapsSearchUrl, getGoogleMapsDirectionsUrl, getGoogleMapsRouteUrl, getEbirdHotspotUrl } from './utils/formatters.js';
+import { calculateDistance, formatDistance, formatDuration, getGoogleMapsSearchUrl, getGoogleMapsDirectionsUrl, getGoogleMapsRouteUrl, getEbirdHotspotUrl, getEbirdSpeciesUrl } from './utils/formatters.js';
 import { createSVGIcon, ICONS } from './utils/icons.js';
 import { clearElement } from './utils/dom-helpers.js';
 import { storage, SEARCH_OPTION_VALUES } from './services/storage.js';
@@ -2537,7 +2537,14 @@ class BirdingHotspotsApp {
                 this.renderFavoriteHotspots();
                 // Update any visible hotspot cards
                 const starBtn = document.querySelector(`.favorite-hotspot-btn[data-loc-id="${fav.locId}"]`);
-                if (starBtn) starBtn.classList.remove('is-favorite');
+                if (starBtn) {
+                    starBtn.classList.remove('is-favorite');
+                    starBtn.setAttribute('aria-label', 'Add to favorites');
+                    const label = starBtn.querySelector('.favorite-hotspot-label');
+                    if (label) {
+                        label.textContent = 'Add to favorites';
+                    }
+                }
             });
 
             const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -3604,7 +3611,8 @@ class BirdingHotspotsApp {
         const diffMs = now - date;
         const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
-        if (diffDays === 0) return 'today';
+        // Future timestamps (time zones, clock skew) count as today
+        if (diffDays <= 0) return 'today';
         if (diffDays === 1) return 'yesterday';
         if (diffDays < 7) return `${diffDays} days ago`;
         if (diffDays < 14) return '1 week ago';
@@ -3708,7 +3716,7 @@ class BirdingHotspotsApp {
             li.className = 'rare-alert-item';
 
             const strong = document.createElement('strong');
-            strong.textContent = obs.comName;
+            strong.appendChild(this.createSpeciesLink(obs));
 
             const location = document.createElement('span');
             location.className = 'rare-alert-location';
@@ -3738,7 +3746,7 @@ class BirdingHotspotsApp {
                 li.className = 'rare-alert-item';
 
                 const strong = document.createElement('strong');
-                strong.textContent = obs.comName;
+                strong.appendChild(this.createSpeciesLink(obs));
 
                 const location = document.createElement('span');
                 location.className = 'rare-alert-location';
@@ -3856,7 +3864,7 @@ class BirdingHotspotsApp {
             li.className = 'lifer-alert-item';
 
             const strong = document.createElement('strong');
-            strong.textContent = lifer.comName;
+            strong.appendChild(this.createSpeciesLink(lifer));
 
             const location = document.createElement('span');
             location.className = 'lifer-alert-location';
@@ -6360,6 +6368,7 @@ class BirdingHotspotsApp {
 
         // Favorite/Star button
         const favoriteBtn = document.createElement('button');
+        favoriteBtn.type = 'button';
         favoriteBtn.className = 'favorite-hotspot-btn';
         favoriteBtn.dataset.locId = hotspot.locId;
         favoriteBtn.setAttribute('aria-label', 'Add to favorites');
@@ -6374,6 +6383,10 @@ class BirdingHotspotsApp {
         starPathBtn.setAttribute('d', 'M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z');
         starSvgBtn.appendChild(starPathBtn);
         favoriteBtn.appendChild(starSvgBtn);
+        const favoriteLabel = document.createElement('span');
+        favoriteLabel.className = 'favorite-hotspot-label';
+        favoriteLabel.textContent = isFavorite ? 'Favorited' : 'Add to favorites';
+        favoriteBtn.appendChild(favoriteLabel);
 
         favoriteBtn.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -6385,6 +6398,7 @@ class BirdingHotspotsApp {
             });
             favoriteBtn.classList.toggle('is-favorite', isFavorite);
             favoriteBtn.setAttribute('aria-label', isFavorite ? 'Remove from favorites' : 'Add to favorites');
+            favoriteLabel.textContent = isFavorite ? 'Favorited' : 'Add to favorites';
             this.renderFavoriteHotspots();
             this.showToast(isFavorite ? 'Added to favorites' : 'Removed from favorites');
         });
@@ -6678,8 +6692,10 @@ class BirdingHotspotsApp {
             }
 
             // Notable gets asterisk prefix, lifer gets star prefix (from CSS ::before)
-            const nameText = bird.isNotable && !bird.isLifer ? `* ${bird.comName}` : bird.comName;
-            li.appendChild(document.createTextNode(nameText));
+            if (bird.isNotable && !bird.isLifer) {
+                li.appendChild(document.createTextNode('* '));
+            }
+            li.appendChild(this.createSpeciesLink(bird));
             speciesGrid.appendChild(li);
         });
 
@@ -6730,7 +6746,7 @@ class BirdingHotspotsApp {
 
                 const nameSpan = document.createElement('span');
                 nameSpan.className = 'notable-bird-name';
-                nameSpan.textContent = bird.comName;
+                nameSpan.appendChild(this.createSpeciesLink(bird));
 
                 const dateSpan = document.createElement('span');
                 dateSpan.className = 'notable-bird-date';
@@ -6857,28 +6873,105 @@ class BirdingHotspotsApp {
             card.classList.toggle('is-open', !expanded);
         });
 
-        // ---- Expanded body: actions, lifer table, then the existing details ----
-        const actions = document.createElement('div');
-        actions.className = 'hotspot-row-actions';
-        actions.append(links, favoriteBtn);
+        // ---- Expanded body ----
+        //   Saratoga Springs, NY · 43.0300, -73.7300 · eBird · Directions · Add to favorites
+        //   LIFER            LAST REPORTED          COUNT
+        //   Black Scoter     ██████████  today          2
+        //   Rare here: Eastern Screech-Owl
+        //   ☀ 43°F Clear sky · 6 mph SW · 68%  EXCELLENT
+        //   More ⌄  (species list, best time, tips)
+        detailsBody.appendChild(this.createHotspotMeta(hotspot, ebirdUrl, directionsUrl, favoriteBtn));
 
-        // Lifers only lead the body; the row already counts them
-        badges.querySelectorAll('.lifer-badge').forEach(b => b.remove());
+        if (hasLifers) {
+            detailsBody.appendChild(this.createLiferTable(liferBirds));
+        } else if (this.hasTargetList()) {
+            const none = document.createElement('p');
+            none.className = 'hotspot-empty-note';
+            none.textContent = `Every species reported here in the last 30 days is already on your ${listLabel}.`;
+            detailsBody.appendChild(none);
+        }
 
-        detailsBody.appendChild(actions);
-        if (badges.childElementCount > 0) detailsBody.appendChild(badges);
-        if (hasLifers) detailsBody.appendChild(this.createLiferTable(liferBirds));
-        if (notableHighlight) detailsBody.appendChild(notableHighlight);
+        // Rare birds that are not lifers: one line, names link to eBird
+        const rareOnly = notableBirds.filter(b => !b.isLifer);
+        if (rareOnly.length > 0) {
+            const rare = document.createElement('p');
+            rare.className = 'hotspot-rare-line';
+            const label = document.createElement('strong');
+            label.textContent = 'Rare here: ';
+            rare.appendChild(label);
+            rareOnly.forEach((bird, i) => {
+                if (i > 0) {
+                    rare.appendChild(document.createTextNode(', '));
+                }
+                rare.appendChild(this.createSpeciesLink(bird));
+            });
+            detailsBody.appendChild(rare);
+        }
+
         if (weatherBadge) detailsBody.appendChild(weatherBadge);
-        if (address) detailsBody.appendChild(address);
-        detailsBody.appendChild(speciesSection);
-        if (seasonalInsights) detailsBody.appendChild(seasonalInsights);
+
+        // Everything else waits behind one quiet toggle
+        const more = document.createElement('details');
+        more.className = 'hotspot-more';
+        const moreSummary = document.createElement('summary');
+        moreSummary.textContent = `All ${hotspot.birds.length} species · best time · tips`;
+        more.appendChild(moreSummary);
+        more.appendChild(speciesSection);
+        if (seasonalInsights) more.appendChild(seasonalInsights);
+        detailsBody.appendChild(more);
 
         card.classList.add('hotspot-card-row');
         card.appendChild(rowHeading);
         card.appendChild(detailsBody);
 
         return card;
+    }
+
+    /**
+     * Bird name linking to its eBird species page (opens a new tab)
+     * @param {{speciesCode: string, comName: string}} bird
+     */
+    createSpeciesLink(bird) {
+        const link = document.createElement('a');
+        link.className = 'species-link';
+        link.href = getEbirdSpeciesUrl(bird.speciesCode);
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.textContent = bird.comName;
+        return link;
+    }
+
+    /**
+     * One-line meta strip: place, coordinates, then inline actions
+     */
+    createHotspotMeta(hotspot, ebirdUrl, directionsUrl, favoriteBtn) {
+        const meta = document.createElement('p');
+        meta.className = 'hotspot-meta-line';
+
+        const facts = [];
+        if (hotspot.address && hotspot.address !== 'Address unavailable') {
+            facts.push(hotspot.address);
+        }
+        facts.push(`${hotspot.lat.toFixed(4)}, ${hotspot.lng.toFixed(4)}`);
+        meta.appendChild(document.createTextNode(facts.join(' · ')));
+
+        // Inline links read as part of the line, like "· eBird · Directions"
+        const addLink = (text, href) => {
+            meta.appendChild(document.createTextNode(' · '));
+            const a = document.createElement('a');
+            a.href = href;
+            a.target = '_blank';
+            a.rel = 'noopener noreferrer';
+            a.textContent = text;
+            meta.appendChild(a);
+        };
+        addLink('View on eBird', ebirdUrl);
+        addLink('Directions', directionsUrl);
+
+        meta.appendChild(document.createTextNode(' · '));
+        favoriteBtn.classList.add('hotspot-meta-action');
+        meta.appendChild(favoriteBtn);
+        return meta;
     }
 
     /**
@@ -6900,8 +6993,19 @@ class BirdingHotspotsApp {
         const body = table.createTBody();
         for (const bird of lifers) {
             const tr = body.insertRow();
-            tr.insertCell().textContent = bird.comName;
-            tr.insertCell().textContent = this.formatRelativeDate(bird.lastSeen);
+            tr.insertCell().appendChild(this.createSpeciesLink(bird));
+
+            // Recency bar: full = reported today, empty = 30 days ago
+            const recencyCell = tr.insertCell();
+            recencyCell.className = 'lifer-recency';
+            const days = bird.confidence?.daysAgo ?? CONFIG.DEFAULT_DAYS_BACK;
+            const bar = document.createElement('span');
+            bar.className = 'lifer-recency-bar';
+            bar.style.setProperty('--fill', `${Math.max(4, 100 - (days / CONFIG.DEFAULT_DAYS_BACK) * 100)}%`);
+            bar.setAttribute('aria-hidden', 'true');
+            const when = document.createElement('span');
+            when.textContent = this.formatRelativeDate(bird.lastSeen);
+            recencyCell.append(bar, when);
             tr.insertCell().textContent = bird.count ?? '';
         }
         return table;

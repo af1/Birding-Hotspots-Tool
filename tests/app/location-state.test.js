@@ -729,3 +729,11 @@ export async function testSharedLinkFillsFormWithoutSearching() {
     assert(app.elements.latitude.value === 42.65, 'Latitude should be restored from the link');
     assert(!searched, 'Opening a shared link must not start a search');
 }
+
+// Clock skew or time zones can put a sighting slightly in the future; never show "-1 days ago"
+export async function testFutureSightingReadsToday() {
+    const app = makeBareApp();
+    const inThreeHours = new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString();
+    const label = app.formatRelativeDate(inThreeHours);
+    assert(label === 'today', `Expected "today", got "${label}"`);
+}
