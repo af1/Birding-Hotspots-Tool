@@ -483,6 +483,18 @@ body {
     font-style: italic;
 }
 
+/* API key privacy note: plain, prominent, readable */
+.api-key-privacy {
+    font-size: 0.85rem;
+    line-height: 1.45;
+    color: var(--text-secondary);
+    margin-top: 10px;
+}
+
+.api-key-privacy strong {
+    color: var(--primary-text);
+}
+
 /* Recent Searches */
 .recent-searches {
     display: flex;
