@@ -7330,3 +7330,95 @@ details.about-section[open] .about-chevron {
 /* Notable legend: AA on white */
 .notable-legend { color: #A35400; }
 [data-theme="dark"] .notable-legend { color: #FFB74D; }
+
+/* Compact results header: title + meta line, then one toolbar row */
+.results-section .results-header {
+    flex-wrap: wrap;
+    gap: 8px 10px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    box-shadow: none;
+    border: 1px solid var(--border-color);
+}
+
+.results-section .results-header-row {
+    display: contents;
+}
+
+.results-section .results-summary {
+    flex-basis: 100%;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.results-section .results-title {
+    font-size: 1.05rem;
+}
+
+.results-section .results-meta {
+    margin: 0;
+    font-size: 0.8rem;
+}
+
+.results-section .results-controls,
+.results-section .results-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0;
+}
+
+.results-section .results-controls .btn,
+.results-section .results-actions .btn,
+.results-section .results-select {
+    min-height: 32px;
+    padding: 4px 12px;
+    font-size: 0.82rem;
+    border-width: 1px;
+}
+
+.results-section .results-actions .btn svg {
+    width: 15px;
+    height: 15px;
+}
+
+/* Highlights: slim single-line pills; full names live in the panel they open */
+.results-section .highlights-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 0;
+    border: 0;
+    background: none;
+}
+
+.results-section .highlight-segment {
+    flex: 0 0 auto;
+    min-height: 32px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    gap: 6px;
+}
+
+.results-section .highlight-segment .highlight-sub {
+    display: none;
+}
+
+.results-section .highlight-segment .highlight-title {
+    font-size: 0.82rem;
+    white-space: nowrap;
+}
+
+.results-section .highlight-segment .highlight-icon svg {
+    width: 14px;
+    height: 14px;
+}
+
+.results-section .weather-summary {
+    padding: 4px 2px;
+    background: none;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
