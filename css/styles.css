@@ -6822,3 +6822,19 @@ details.about-section[open] .about-chevron {
         filter: invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.9);
     }
 }
+
+/* Separator lines between sidebar sections need breathing room under them */
+.settings-sidebar > .card,
+.settings-sidebar > .collapsible-section {
+    padding-top: 10px;
+}
+
+.settings-sidebar .advanced-option-group {
+    padding-bottom: 8px;
+}
+
+.settings-sidebar .about-section {
+    border: 0;
+    border-top: 1px solid var(--border-color);
+    padding: 10px 0 0;
+}
