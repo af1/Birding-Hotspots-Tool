@@ -17,6 +17,11 @@
     --success: #388E3C;
     --notable-highlight: #FF5722;
     --lifer-highlight: #6A1B9A;
+    /* Text-safe primary and button fill: keep WCAG AA (4.5:1) in both themes */
+    --primary-text: #3A6B35;
+    --lifer-badge-text: #6A1B9A;
+    --btn-from: #3A6B35;
+    --btn-to: #467A40;
     --lifer-bg: #F3E5F5;
     --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     --shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.15);
@@ -70,6 +75,8 @@
 @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
         --primary-color: #5A8F55;
+        --primary-text: #81C784;
+        --lifer-badge-text: #CE93D8;
         --primary-hover: #6FA869;
         --primary-light: #81C784;
         --secondary-color: #A3C98A;
@@ -111,6 +118,8 @@
 /* Dark Mode - Manual Toggle */
 [data-theme="dark"] {
     --primary-color: #5A8F55;
+    --primary-text: #81C784;
+    --lifer-badge-text: #CE93D8;
     --primary-hover: #6FA869;
     --primary-light: #81C784;
     --secondary-color: #A3C98A;
@@ -295,7 +304,7 @@ body {
     font-family: var(--font-heading);
     font-size: 2rem;
     font-weight: 700;
-    color: var(--primary-color);
+    color: var(--primary-text);
 }
 
 .tagline {
@@ -544,7 +553,7 @@ body {
 .text-input:focus {
     outline: none;
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(58, 107, 53, 0.1);
+    box-shadow: 0 0 0 3px rgba(58, 107, 53, 0.45);
 }
 
 .text-input::placeholder {
@@ -570,7 +579,7 @@ body {
     justify-content: center;
     border-radius: var(--radius);
     background: var(--hover-bg);
-    color: var(--primary-color);
+    color: var(--primary-text);
     border: 2px solid var(--border-color);
     cursor: pointer;
     transition: all var(--transition);
@@ -769,7 +778,7 @@ body {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+    background: linear-gradient(135deg, var(--btn-from) 0%, var(--btn-to) 100%);
     color: white;
     box-shadow: 0 2px 8px rgba(58, 107, 53, 0.25);
 }
@@ -787,7 +796,7 @@ body {
 
 .btn-secondary {
     background: transparent;
-    color: var(--primary-color);
+    color: var(--primary-text);
     border: 2px solid var(--primary-color);
 }
 
@@ -852,7 +861,7 @@ body {
 }
 
 .help-link:hover {
-    color: var(--primary-color);
+    color: var(--primary-text);
 }
 
 /* Favorites List */
@@ -991,7 +1000,7 @@ body {
 }
 
 .input-validation-indicator.success {
-    color: var(--primary-color);
+    color: var(--primary-text);
 }
 
 .input-validation-indicator.error {
@@ -1134,7 +1143,7 @@ body {
     font-family: var(--font-heading);
     font-size: 1.5rem;
     font-weight: 600;
-    color: var(--primary-color);
+    color: var(--primary-text);
 }
 
 .route-stat-label {
@@ -1242,7 +1251,7 @@ body {
 }
 
 .route-hotspot-species {
-    color: var(--primary-color);
+    color: var(--primary-text);
     font-weight: 500;
 }
 
@@ -1363,7 +1372,7 @@ body {
 }
 
 .route-diversity-indicator.has-unique {
-    color: var(--primary-color);
+    color: var(--primary-text);
     font-weight: 500;
 }
 
@@ -1497,7 +1506,7 @@ body {
 }
 
 .footer a {
-    color: var(--primary-color);
+    color: var(--primary-text);
     text-decoration: none;
 }
 
@@ -1923,7 +1932,7 @@ details.about-section[open] .about-chevron {
 }
 
 .about-content a {
-    color: var(--primary-color);
+    color: var(--primary-text);
     text-decoration: none;
 }
 
@@ -1978,7 +1987,7 @@ details.about-section[open] .about-chevron {
     font-family: var(--font-heading);
     font-size: 1.25rem;
     font-weight: 700;
-    color: var(--primary-color);
+    color: var(--primary-text);
     margin: 0;
 }
 
@@ -2176,7 +2185,7 @@ details.about-section[open] .about-chevron {
     flex-shrink: 0;
     width: 40px;
     height: 40px;
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+    background: linear-gradient(135deg, var(--btn-from) 0%, var(--btn-to) 100%);
     color: white;
     border-radius: 50%;
     display: flex;
@@ -2216,14 +2225,14 @@ details.about-section[open] .about-chevron {
 }
 
 .hotspot-stats .stat svg {
-    color: var(--primary-color);
+    color: var(--primary-text);
 }
 
 .species-count {
     font-family: var(--font-heading);
     font-weight: 600;
     font-size: 1rem;
-    color: var(--primary-color) !important;
+    color: var(--primary-text) !important;
 }
 
 /* Hotspot Quality Indicators */
@@ -2296,7 +2305,7 @@ details.about-section[open] .about-chevron {
     align-items: center;
     gap: 6px;
     font-size: 0.9rem;
-    color: var(--primary-color);
+    color: var(--primary-text);
     text-decoration: none;
     transition: color var(--transition);
 }
@@ -2582,7 +2591,7 @@ details.about-section[open] .about-chevron {
 }
 
 .favorite-hotspot-info:hover {
-    color: var(--primary-color);
+    color: var(--primary-text);
 }
 
 .favorite-hotspot-name {
@@ -3080,7 +3089,7 @@ details.about-section[open] .about-chevron {
     font-size: 0.75rem;
     padding: 2px 8px;
     background: var(--lifer-bg);
-    color: var(--lifer-highlight);
+    color: var(--lifer-badge-text);
     border-radius: 10px;
     font-weight: 600;
     margin-left: auto;
@@ -3104,7 +3113,7 @@ details.about-section[open] .about-chevron {
 }
 
 .help-text-small a {
-    color: var(--primary-color);
+    color: var(--primary-text);
 }
 
 /* Responsive adjustments for lifer alert */
@@ -3144,7 +3153,7 @@ details.about-section[open] .about-chevron {
 }
 
 .weather-summary-icon {
-    color: var(--primary-color);
+    color: var(--primary-text);
 }
 
 .weather-summary-text {
@@ -3273,7 +3282,7 @@ details.about-section[open] .about-chevron {
 }
 
 .temp-toggle:hover {
-    color: var(--primary-color);
+    color: var(--primary-text);
 }
 
 /* Birding Condition Badge */
@@ -3363,7 +3372,7 @@ details.about-section[open] .about-chevron {
 
 .search-mode-btn.active {
     background: var(--card-bg);
-    color: var(--primary-color);
+    color: var(--primary-text);
     box-shadow: var(--shadow);
 }
 
@@ -3386,7 +3395,7 @@ details.about-section[open] .about-chevron {
 .species-search-input:focus {
     outline: none;
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(58, 107, 53, 0.1);
+    box-shadow: 0 0 0 3px rgba(58, 107, 53, 0.45);
 }
 
 .species-search-icon {
@@ -3602,7 +3611,7 @@ details.about-section[open] .about-chevron {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--primary-color);
+    color: var(--primary-text);
 }
 
 .species-results-title {
@@ -3699,7 +3708,7 @@ details.about-section[open] .about-chevron {
 }
 
 .sighting-date strong {
-    color: var(--primary-color);
+    color: var(--primary-text);
 }
 
 .sighting-count {
@@ -3721,7 +3730,7 @@ details.about-section[open] .about-chevron {
     align-items: center;
     gap: 6px;
     font-size: 0.85rem;
-    color: var(--primary-color);
+    color: var(--primary-text);
     text-decoration: none;
     transition: color var(--transition);
 }
@@ -3848,7 +3857,7 @@ details.about-section[open] .about-chevron {
 }
 
 .seasonal-insights-toggle:hover {
-    color: var(--primary-color);
+    color: var(--primary-text);
 }
 
 .seasonal-insights-toggle .chevron {
@@ -3953,7 +3962,7 @@ details.about-section[open] .about-chevron {
     background: var(--hover-bg);
     border-radius: 12px;
     font-size: 0.75rem;
-    color: var(--primary-color);
+    color: var(--primary-text);
     font-weight: 500;
 }
 
@@ -4000,7 +4009,7 @@ details.about-section[open] .about-chevron {
     background: var(--hover-bg);
     border-radius: var(--radius);
     font-size: 0.85rem;
-    color: var(--primary-color);
+    color: var(--primary-text);
 }
 
 .best-time-recommendation svg {
@@ -4021,7 +4030,7 @@ details.about-section[open] .about-chevron {
 }
 
 .seasonal-summary-icon {
-    color: var(--primary-color);
+    color: var(--primary-text);
 }
 
 /* Responsive adjustments */
@@ -4082,7 +4091,7 @@ details.about-section[open] .about-chevron {
 
 .btn-icon:hover {
     background: var(--hover-bg);
-    color: var(--primary-color);
+    color: var(--primary-text);
 }
 
 /* Itinerary Panel */
@@ -4136,6 +4145,7 @@ details.about-section[open] .about-chevron {
 .select-input:focus {
     outline: none;
     border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(58, 107, 53, 0.45);
 }
 
 /* Range input */
@@ -4199,7 +4209,7 @@ details.about-section[open] .about-chevron {
 .itinerary-summary-title {
     font-size: 1.1rem;
     font-weight: 600;
-    color: var(--primary-color);
+    color: var(--primary-text);
     margin-bottom: 12px;
 }
 
@@ -4328,7 +4338,7 @@ details.about-section[open] .about-chevron {
 
 .stop-species-count {
     background: var(--hover-bg);
-    color: var(--primary-color);
+    color: var(--primary-text);
     padding: 2px 8px;
     border-radius: 12px;
     font-weight: 500;
@@ -4487,7 +4497,7 @@ details.about-section[open] .about-chevron {
 .route-header-icon {
     width: 48px;
     height: 48px;
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+    background: linear-gradient(135deg, var(--btn-from) 0%, var(--btn-to) 100%);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -4526,7 +4536,7 @@ details.about-section[open] .about-chevron {
     display: block;
     font-size: 1.25rem;
     font-weight: 600;
-    color: var(--primary-color);
+    color: var(--primary-text);
 }
 
 .route-summary-stats .stat-label {
@@ -4605,7 +4615,7 @@ details.about-section[open] .about-chevron {
 
 .stop-time {
     font-size: 0.85rem;
-    color: var(--primary-color);
+    color: var(--primary-text);
     font-weight: 500;
 }
 
@@ -4628,7 +4638,7 @@ details.about-section[open] .about-chevron {
 }
 
 .stop-details .species-count {
-    color: var(--primary-color);
+    color: var(--primary-text);
     font-weight: 500;
 }
 
@@ -4721,7 +4731,7 @@ details.about-section[open] .about-chevron {
     padding: var(--spacing-xs) var(--spacing-sm);
     background: var(--hover-bg);
     border-radius: var(--radius);
-    color: var(--primary-color);
+    color: var(--primary-text);
     text-decoration: none;
     font-size: 0.85rem;
     font-weight: 500;
@@ -4817,7 +4827,7 @@ details.about-section[open] .about-chevron {
 }
 
 .faq-answer a {
-    color: var(--primary-color);
+    color: var(--primary-text);
     text-decoration: none;
 }
 
@@ -4858,7 +4868,7 @@ details.about-section[open] .about-chevron {
 
 .header-nav .help-link:hover {
     background: rgba(58, 107, 53, 0.2);
-    color: var(--primary-color);
+    color: var(--primary-text);
 }
 
 .header-nav .feedback-link svg {
@@ -5010,7 +5020,7 @@ details.about-section[open] .about-chevron {
 }
 
 .search-type-icon {
-    color: var(--primary-color);
+    color: var(--primary-text);
     margin-bottom: 12px;
     width: 56px;
     height: 56px;
@@ -5306,7 +5316,7 @@ details.about-section[open] .about-chevron {
 .onboarding-modal h3 {
     font-size: 1.3rem;
     margin-bottom: 16px;
-    color: var(--primary-color);
+    color: var(--primary-text);
 }
 
 .onboarding-list {
@@ -5346,7 +5356,7 @@ details.about-section[open] .about-chevron {
 }
 
 .onboarding-api-notice a {
-    color: var(--primary-color);
+    color: var(--primary-text);
     font-weight: 600;
     text-decoration: underline;
 }
@@ -5456,7 +5466,7 @@ details.about-section[open] .about-chevron {
 }
 
 .checklist-link {
-    color: var(--primary-color);
+    color: var(--primary-text);
     text-decoration: none;
     font-size: 0.85rem;
     flex-shrink: 0;
@@ -5560,7 +5570,7 @@ details.about-section[open] .about-chevron {
 
 .save-itinerary-btn:hover {
     border-color: var(--primary-color);
-    color: var(--primary-color);
+    color: var(--primary-text);
     background: var(--hover-bg);
 }
 
@@ -5900,7 +5910,7 @@ details.about-section[open] .about-chevron {
     border-radius: 999px;
     font-size: 0.75rem;
     font-weight: 700;
-    color: var(--primary-color);
+    color: var(--primary-text);
     background: var(--success-bg, rgba(58, 107, 53, 0.1));
 }
 
@@ -6032,7 +6042,7 @@ details.about-section[open] .about-chevron {
     font-family: inherit;
     font-size: 0.8125rem;
     font-weight: 600;
-    color: var(--primary-color);
+    color: var(--primary-text);
     cursor: pointer;
     text-decoration: none;
     min-height: 32px;
@@ -6085,7 +6095,7 @@ details.about-section[open] .about-chevron {
     color: var(--text-secondary);
 }
 
-.quick-pick-label.species { background: var(--success-bg, rgba(58, 107, 53, 0.1)); color: var(--primary-color); }
+.quick-pick-label.species { background: var(--success-bg, rgba(58, 107, 53, 0.1)); color: var(--primary-text); }
 .quick-pick-label.fresh { background: var(--rare-bg, rgba(230, 81, 0, 0.1)); color: var(--rare-text, #E65100); }
 
 .quick-pick-name {
@@ -6147,7 +6157,7 @@ details.about-section[open] .about-chevron {
 .highlight-segment.rare { background: var(--rare-bg, rgba(230, 81, 0, 0.1)); color: var(--rare-text, #E65100); }
 .highlight-segment.targets { background: var(--lifer-bg, rgba(123, 31, 162, 0.08)); color: var(--lifer-text, #7B1FA2); }
 .highlight-segment.excellent,
-.highlight-segment.good { background: var(--success-bg, rgba(58, 107, 53, 0.1)); color: var(--primary-color); }
+.highlight-segment.good { background: var(--success-bg, rgba(58, 107, 53, 0.1)); color: var(--primary-text); }
 .highlight-segment.fair,
 .highlight-segment.poor,
 .highlight-segment.weather { background: var(--hover-bg); color: var(--text-primary); }
@@ -6181,7 +6191,7 @@ details.about-section[open] .about-chevron {
 }
 
 .mode-tab:hover { color: var(--text-primary); }
-.mode-tab.active { background: var(--card-bg); color: var(--primary-color); box-shadow: var(--shadow); }
+.mode-tab.active { background: var(--card-bg); color: var(--primary-text); box-shadow: var(--shadow); }
 .mode-tab:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 2px; }
 
 /* API key card, collapsed once a key is saved */
@@ -6198,7 +6208,7 @@ details.about-section[open] .about-chevron {
     gap: 8px;
     font-size: 0.875rem;
     font-weight: 600;
-    color: var(--primary-color);
+    color: var(--primary-text);
 }
 
 .api-key-card.collapsed { padding-top: 12px; padding-bottom: 12px; }

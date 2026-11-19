@@ -139,6 +139,7 @@ export async function generatePDFReport(data, onProgress = () => {}) {
         sortMethod,
         generatedDate,
         searchRadiusKm = CONFIG.DEFAULT_SEARCH_RADIUS,
+        driveMinutes = null,
         useFahrenheit = true
     } = data;
 
@@ -188,7 +189,8 @@ export async function generatePDFReport(data, onProgress = () => {}) {
     doc.text(`Sorted by: ${sortLabels[sortMethod] || sortMethod}`, margin, yPos);
     yPos += 5;
     const radiusMi = Math.round(searchRadiusKm * 0.621371);
-    doc.text(`Showing top ${hotspots.length} hotspots within ${radiusMi} miles`, margin, yPos);
+    const areaLabel = driveMinutes ? `a ${driveMinutes} min drive` : `${radiusMi} miles`;
+    doc.text(`Showing top ${hotspots.length} hotspots within ${areaLabel}`, margin, yPos);
     yPos += 10;
 
     // ========== MAP ==========

@@ -18,6 +18,7 @@ import { SpeciesSearch, getCachedTaxonomy, cacheTaxonomy } from './services/spec
 import { getSeasonalInsights, getOptimalBirdingTimes, getCurrentSeason, analyzeHotspotActivity } from './services/seasonal-insights.js';
 import { buildItinerary, formatItineraryDuration, formatItineraryTime, calculateUniquenessScore, getSeenSpeciesFromHotspots, canShowGenericItineraryButton, toSavedItineraryStops, reviveSavedItinerary } from './services/itinerary-builder.js';
 import { buildRouteSamplePoints, dedupeHotspotsById, filterHotspotsByRouteDistance, rankHotspotsForEnrichment, sortEnrichedRouteHotspots } from './services/route-hotspot-search.js';
+import { findDriveHotspots } from './services/drive-time-search.js';
 import { generateGPX, generateHotspotsGPX, downloadGPX } from './services/gpx-generator.js';
 import { applyHotspotFilters } from './services/hotspot-filters.js';
 import { LifeListService, collectLifersAcrossHotspots, formatLiferTargetsText } from './services/life-list.js';
@@ -2402,7 +2403,19 @@ class BirdingHotspotsApp {
      * Get selected search range in km
      */
     getSearchRange() {
+        // Drive-time modes use the full eBird radius for area-wide queries (notables, species)
+        if (this.getDriveMinutes()) {
+            return CONFIG.DEFAULT_SEARCH_RADIUS;
+        }
         return parseInt(this._checkedValue(this.elements.searchRangeRadios, '50'), 10);
+    }
+
+    /**
+     * Selected drive-time limit in minutes ("drive60" -> 60), or null for radius mode
+     */
+    getDriveMinutes() {
+        const match = /^drive(\d+)$/.exec(this._checkedValue(this.elements.searchRangeRadios, ''));
+        return match ? parseInt(match[1], 10) : null;
     }
 
     /**
@@ -2489,12 +2502,15 @@ class BirdingHotspotsApp {
             // Fetch nearby hotspots
             this.updateLoading('Fetching nearby hotspots...', 15);
             const searchRange = this.getSearchRange();
-            let hotspots = await this.ebirdApi.getNearbyHotspots(
-                origin.lat,
-                origin.lng,
-                searchRange,
-                CONFIG.DEFAULT_DAYS_BACK
-            );
+            const driveMinutes = this.getDriveMinutes();
+            let hotspots = driveMinutes
+                ? await findDriveHotspots(this.ebirdApi, origin, driveMinutes, this.abortController.signal)
+                : await this.ebirdApi.getNearbyHotspots(
+                    origin.lat,
+                    origin.lng,
+                    searchRange,
+                    CONFIG.DEFAULT_DAYS_BACK
+                );
 
             if (this.searchCancelled) {
                 this.isProcessing = false;
@@ -2505,8 +2521,9 @@ class BirdingHotspotsApp {
                 throw new Error(ErrorMessages[ErrorTypes.NO_HOTSPOTS]);
             }
 
-            // Sort by distance from origin before limiting (eBird API doesn't guarantee order)
-            hotspots.sort((a, b) => {
+            // Sort by distance from origin before limiting (eBird API doesn't guarantee order).
+            // Drive-time results stay richest-first so the cap keeps the best of the whole area.
+            if (!driveMinutes) hotspots.sort((a, b) => {
                 const distA = calculateDistance(origin.lat, origin.lng, a.lat, a.lng);
                 const distB = calculateDistance(origin.lat, origin.lng, b.lat, b.lng);
                 return distA - distB;
@@ -2566,6 +2583,7 @@ class BirdingHotspotsApp {
                 hotspots: sortedHotspots,
                 sortMethod,
                 searchRadiusKm: this.getSearchRange(),
+                driveMinutes,
                 generatedDate: new Date().toLocaleDateString('en-US', {
                     year: 'numeric',
                     month: 'long',
@@ -3998,8 +4016,9 @@ class BirdingHotspotsApp {
         const el = this.elements.searchOptionsSummary;
         if (!el) return;
         const rangeKm = parseInt(this._checkedValue(this.elements.searchRangeRadios, '16'), 10);
+        const driveMinutes = this.getDriveMinutes();
         // Whole miles, matching the radio labels (16 km reads as 10 mi, not 9.9)
-        const parts = [`Within ${Math.round(rangeKm * 0.621371)} mi`];
+        const parts = [driveMinutes ? `Within ${driveMinutes} min drive` : `Within ${Math.round(rangeKm * 0.621371)} mi`];
         if (this.searchSubMode !== 'species') {
             parts.push(`Top ${this._checkedValue(this.elements.hotspotsCountRadios, '10')}`);
             const sortLabels = { species: 'Most species', distance: 'Closest', driving: 'Shortest drive', recency: 'Freshest sightings' };

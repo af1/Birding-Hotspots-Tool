@@ -47,7 +47,17 @@ export const CONFIG = {
     OSRM: {
         BASE_URL: 'https://router.project-osrm.org/route/v1/driving',
         TABLE_URL: 'https://router.project-osrm.org/table/v1/driving',
-        TRIP_URL: 'https://router.project-osrm.org/trip/v1/driving'
+        TRIP_URL: 'https://router.project-osrm.org/trip/v1/driving',
+        TABLE_CHUNK_SIZE: 99  // public server max table size is 100 (origin + 99)
+    },
+
+    // Drive-time search (hotspots reachable within N minutes)
+    DRIVE_TIME: {
+        MAX_SPEED_KMH: 120,     // reach upper bound used to size the search disc
+        SEARCH_RADIUS_KM: 50,   // eBird /ref/hotspot/geo hard cap
+        GRID_SPACING_KM: 75,    // < 50 * sqrt(3) so circles fully cover the disc
+        MAX_CANDIDATES: 396,    // 4 OSRM table calls
+        QUERY_CONCURRENCY: 5    // parallel eBird geo calls
     },
 
     // Route-mode hotspot search (multi-point sampling along the route)

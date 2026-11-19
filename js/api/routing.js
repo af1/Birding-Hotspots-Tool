@@ -126,6 +126,33 @@ export async function getDrivingRoutes(originLat, originLng, destinations, signa
 }
 
 /**
+ * Drive durations from origin to many destinations, chunked to fit the
+ * public OSRM server's table size limit. Failed chunks yield nulls.
+ * @param {{lat: number, lng: number}} origin
+ * @param {Array<{lat: number, lng: number}>} destinations
+ * @returns {Promise<Array<{distance: number, duration: number}|null>>}
+ */
+export async function getDriveDurations(origin, destinations, signal) {
+    const { TABLE_CHUNK_SIZE } = CONFIG.OSRM;
+    const results = [];
+
+    for (let i = 0; i < destinations.length; i += TABLE_CHUNK_SIZE) {
+        const chunk = destinations.slice(i, i + TABLE_CHUNK_SIZE);
+        try {
+            results.push(...await getDrivingDistancesTable(origin.lat, origin.lng, chunk, signal));
+        } catch (error) {
+            if (error.name === 'AbortError') {
+                throw error;
+            }
+            console.warn('OSRM table chunk failed:', error.message);
+            results.push(...chunk.map(() => null));
+        }
+    }
+
+    return results;
+}
+
+/**
  * Get optimized trip route through multiple waypoints using OSRM Trip service
  * This solves the traveling salesman problem to find the optimal order
  * @param {Array<{lat: number, lng: number, name?: string}>} waypoints - Array of waypoint coordinates
