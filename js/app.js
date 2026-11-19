@@ -30,6 +30,8 @@ import { errorReporter } from './services/error-reporter.js';
 // sessionStorage key for the last results: survives a reload, not a new tab
 const RESULTS_CACHE_KEY = 'birding_last_results';
 
+const KM_PER_MILE = 1.609344;
+
 // Install global error handlers as early as possible
 errorReporter.init();
 
@@ -106,7 +108,8 @@ class BirdingHotspotsApp {
             // Search range
             searchRangeRadios: document.querySelectorAll('[name="searchRange"]'),
             driveMinutes: document.getElementById('driveMinutes'),
-            driveMinutesValue: document.getElementById('driveMinutesValue'),
+            searchMiles: document.getElementById('searchMiles'),
+            distanceGroup: document.getElementById('distanceGroup'),
             driveMinutesGroup: document.getElementById('driveMinutesGroup'),
 
             // Hotspots count
@@ -545,11 +548,18 @@ class BirdingHotspotsApp {
 
         // Drive-time slider: show/hide with the range choice, persist and summarize on move
         this.elements.searchRangeRadios.forEach(radio => radio.addEventListener('change', () => this.syncDriveMinutes()));
-        this.elements.driveMinutes.addEventListener('input', () => {
-            this.syncDriveMinutes();
-            this.saveSearchOptions();
-            this.updateSearchOptionsSummary();
-        });
+        // Amount boxes: remember while typing, snap into range when the user leaves the box
+        for (const input of [this.elements.searchMiles, this.elements.driveMinutes]) {
+            input.addEventListener('input', () => {
+                this.saveSearchOptions();
+                this.updateSearchOptionsSummary();
+            });
+            input.addEventListener('change', () => {
+                input.value = this.clampAmount(input);
+                this.saveSearchOptions();
+                this.updateSearchOptionsSummary();
+            });
+        }
 
         // Favorite hotspots collapsible toggle
         if (this.elements.favoriteHotspotsToggle) {
@@ -856,7 +866,8 @@ class BirdingHotspotsApp {
         if (saved.sort) {
             this.elements.sortMethod.value = saved.sort;
         }
-        const groups = { range: 'searchRange', count: 'hotspotsCount' };
+        this.applyRangeValue(saved.range, saved.miles);
+        const groups = { count: 'hotspotsCount' };
         for (const [key, name] of Object.entries(groups)) {
             if (!saved[key]) continue;
             const radio = document.querySelector(`[name="${name}"][value="${saved[key]}"]`);
@@ -877,8 +888,9 @@ class BirdingHotspotsApp {
         storage.setSearchOptions({
             sort: (this.elements.sortMethod.value || 'newbirds'),
             range: this._checkedValue(this.elements.searchRangeRadios),
+            miles: String(this.getSearchMiles()),
             count: this._checkedValue(this.elements.hotspotsCountRadios),
-            driveMinutes: this.elements.driveMinutes.value
+            driveMinutes: String(this.clampAmount(this.elements.driveMinutes))
         });
     }
 
@@ -940,13 +952,13 @@ class BirdingHotspotsApp {
         this.validatedCoords = null;
         this.validatedAddressInput = null;
         this.elements.useCurrentLocation.disabled = true;
-        this.elements.useCurrentLocation.textContent = 'Getting location...';
+        this.setLocationButtonState('Getting location…');
 
         try {
             const position = await getCurrentPosition();
 
             // Reverse geocode to get address
-            this.elements.useCurrentLocation.textContent = 'Finding address...';
+            this.setLocationButtonState('Finding address…');
             let address = '';
             try {
                 const reverseResult = await reverseGeocode(position.lat, position.lng);
@@ -999,11 +1011,26 @@ class BirdingHotspotsApp {
      * Reset the location button to its default state using safe DOM manipulation
      */
     resetLocationButton() {
+        this.setLocationButtonState(null);
+    }
+
+    /**
+     * Icon-only locate button: a busy message spins the icon; the text is
+     * for screen readers and the tooltip, since the button sits inside the field.
+     * @param {string|null} busyMessage - e.g. 'Getting location…'; null = idle
+     */
+    setLocationButtonState(busyMessage) {
         const btn = this.elements.useCurrentLocation;
-        // Clear existing content safely
+        const label = busyMessage || 'Use my current location';
         clearElement(btn);
         btn.appendChild(createSVGIcon('myLocation', 18));
-        btn.appendChild(document.createTextNode(' Use My Current Location'));
+        const text = document.createElement('span');
+        text.className = 'visually-hidden';
+        text.textContent = label;
+        btn.appendChild(text);
+        btn.title = label;
+        btn.classList.toggle('is-busy', Boolean(busyMessage));
+        btn.setAttribute('aria-busy', String(Boolean(busyMessage)));
     }
 
     /**
@@ -2286,13 +2313,10 @@ class BirdingHotspotsApp {
         }
 
         // Set search range if provided
-        const range = params.get('range');
-        if (range) {
-            const rangeRadio = document.querySelector(`[name="searchRange"][value="${range}"]`);
-            if (rangeRadio) rangeRadio.checked = true;
-        }
+        // Area: Distance/Drive switch plus amount (old links carry km in "range")
+        this.applyRangeValue(params.get('range'), params.get('miles'));
 
-        // Drive-time minutes, only accepted from the slider's own allowlist
+        // Drive-time minutes, only accepted from the allowlist
         const minutes = params.get('minutes');
         if (minutes && SEARCH_OPTION_VALUES.driveMinutes.includes(minutes)) {
             this.elements.driveMinutes.value = minutes;
@@ -2354,7 +2378,11 @@ class BirdingHotspotsApp {
 
         const searchRange = this._checkedValue(this.elements.searchRangeRadios);
         if (searchRange) params.set('range', searchRange);
-        if (this.getDriveMinutes()) params.set('minutes', this.elements.driveMinutes.value);
+        if (this.getDriveMinutes()) {
+            params.set('minutes', String(this.getDriveMinutes()));
+        } else {
+            params.set('miles', String(this.getSearchMiles()));
+        }
 
         const hotspotsCount = this._checkedValue(this.elements.hotspotsCountRadios);
         if (hotspotsCount) params.set('count', hotspotsCount);
@@ -2632,25 +2660,71 @@ class BirdingHotspotsApp {
         if (this.getDriveMinutes()) {
             return CONFIG.DEFAULT_SEARCH_RADIUS;
         }
-        return parseInt(this._checkedValue(this.elements.searchRangeRadios, '50'), 10);
+        return Math.min(CONFIG.DEFAULT_SEARCH_RADIUS, Math.round(this.getSearchMiles() * KM_PER_MILE));
     }
 
     /**
-     * Drive-time limit in minutes from the slider, or null when a radius is selected
+     * Distance amount in whole miles, clamped to 1-31 (eBird's 50 km cap)
+     */
+    getSearchMiles() {
+        return this.clampAmount(this.elements.searchMiles);
+    }
+
+    /**
+     * Drive-time limit in minutes, or null when Distance is selected
      */
     getDriveMinutes() {
         if (this._checkedValue(this.elements.searchRangeRadios) !== 'drive') {
             return null;
         }
-        return parseInt(this.elements.driveMinutes.value, 10);
+        return this.clampAmount(this.elements.driveMinutes);
     }
 
     /**
-     * Show the minutes slider only in drive-time mode and mirror its value in the label
+     * Read a number box and snap it to its own min/max/step.
+     * Example: drive minutes "47" -> 45, "200" -> 90, "" -> the default value.
+     */
+    clampAmount(input) {
+        const min = Number(input.min);
+        const max = Number(input.max);
+        const step = Number(input.step) || 1;
+        const raw = parseInt(input.value, 10);
+        const value = Number.isFinite(raw) ? raw : Number(input.defaultValue);
+        const snapped = Math.round(value / step) * step;
+        return Math.min(max, Math.max(min, snapped));
+    }
+
+    /**
+     * Apply a saved or linked area: 'distance' | 'drive', or a legacy km value
+     * from before the switch ('16' -> Distance, 10 miles).
+     */
+    applyRangeValue(range, miles) {
+        if (!range) {
+            this.syncDriveMinutes();
+            return;
+        }
+        const legacyKm = parseInt(range, 10);
+        const mode = range === 'drive' ? 'drive' : 'distance';
+        const radio = [...this.elements.searchRangeRadios].find(r => r.value === mode);
+        if (radio) {
+            radio.checked = true;
+        }
+
+        if (miles && SEARCH_OPTION_VALUES.miles.includes(String(miles))) {
+            this.elements.searchMiles.value = miles;
+        } else if (Number.isFinite(legacyKm)) {
+            this.elements.searchMiles.value = Math.round(legacyKm / KM_PER_MILE);
+        }
+        this.syncDriveMinutes();
+    }
+
+    /**
+     * Show the amount box that matches the Distance/Drive switch
      */
     syncDriveMinutes() {
-        this.elements.driveMinutesGroup.classList.toggle('hidden', this.getDriveMinutes() === null);
-        this.elements.driveMinutesValue.textContent = this.elements.driveMinutes.value;
+        const drive = this.getDriveMinutes() !== null;
+        this.elements.driveMinutesGroup.classList.toggle('hidden', !drive);
+        this.elements.distanceGroup.classList.toggle('hidden', drive);
     }
 
     /**
@@ -3179,11 +3253,6 @@ class BirdingHotspotsApp {
         setTimeout(() => {
             this.elements.resultsSection.focus();
         }, 500);
-
-        // Fetch regional activity panel (non-blocking, fires after results render)
-        if (origin && this.ebirdApi) {
-            this.fetchRegionalActivity(origin.lat, origin.lng).catch(() => {/* swallow — non-critical */});
-        }
     }
 
     /**
@@ -4257,10 +4326,8 @@ class BirdingHotspotsApp {
     updateSearchOptionsSummary() {
         const el = this.elements.searchOptionsSummary;
         if (!el) return;
-        const rangeKm = parseInt(this._checkedValue(this.elements.searchRangeRadios, '16'), 10);
         const driveMinutes = this.getDriveMinutes();
-        // Whole miles, matching the radio labels (16 km reads as 10 mi, not 9.9)
-        const parts = [driveMinutes ? `Within ${driveMinutes} min drive` : `Within ${Math.round(rangeKm * 0.621371)} mi`];
+        const parts = [driveMinutes ? `Within ${driveMinutes} min drive` : `Within ${this.getSearchMiles()} mi`];
         if (this.searchSubMode !== 'species') {
             parts.push(`Top ${this._checkedValue(this.elements.hotspotsCountRadios, '10')}`);
         }

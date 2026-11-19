@@ -148,6 +148,7 @@ function makeBareApp() {
     app.tryShowRoutePreview = () => {};
     app.toggleInputMode = () => {};
     app.resetLocationButton = () => {};
+    app.setLocationButtonState = () => {};
     app.hideError = () => {};
     app.hideLoading = () => {};
     app.showLoading = () => {};

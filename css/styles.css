@@ -7185,3 +7185,85 @@ details.about-section[open] .about-chevron {
 .hotspot-more[open] > summary {
     margin-bottom: 8px;
 }
+
+/* Locate button: spin while finding location; check mark moves left of it */
+.settings-sidebar .locate-btn.is-busy svg {
+    animation: locate-spin 1s linear infinite;
+}
+
+@keyframes locate-spin {
+    to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .settings-sidebar .locate-btn.is-busy svg {
+        animation: none;
+        opacity: 0.5;
+    }
+}
+
+.settings-sidebar #addressInput .input-validation-indicator {
+    right: 40px;
+}
+
+.settings-sidebar #address {
+    padding-right: 64px;
+}
+
+/* Reset: comfortable hit area and inset text */
+.settings-sidebar .btn-reset {
+    padding: 6px 12px;
+    min-height: 30px;
+}
+
+/* Map preview: compact, it is only a confirmation glance */
+.settings-sidebar .map-preview-container {
+    height: auto;
+    min-height: 0;
+    padding: 0;
+}
+
+.settings-sidebar #mapPreviewContainer {
+    height: 160px;
+}
+
+/* Preview header: just a small "Open in Google Maps" link under the field */
+.settings-sidebar .map-preview-title {
+    display: none;
+}
+
+.settings-sidebar .map-preview-header {
+    justify-content: flex-end;
+    margin: 0 0 6px;
+}
+
+.settings-sidebar #openInGoogleMaps {
+    padding: 0;
+    min-height: 0;
+    border: 0;
+    background: none;
+    font-size: 0.78rem;
+    color: var(--primary-text);
+    box-shadow: none;
+}
+
+/* Area amount: "Up to [ 10 ] miles" on one line under the switch */
+.settings-sidebar .area-amount {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.settings-sidebar .area-amount.hidden {
+    display: none;
+}
+
+.settings-sidebar .area-amount-input {
+    width: 84px;
+    flex: none;
+    text-align: end;
+    font-variant-numeric: tabular-nums;
+}

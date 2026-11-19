@@ -12,8 +12,9 @@ const { STORAGE_KEYS } = CONFIG;
  */
 export const SEARCH_OPTION_VALUES = {
     sort: ['species', 'distance', 'driving', 'recency', 'newbirds'],
-    range: ['16', '32', '50', 'drive'],
+    range: ['distance', 'drive', '16', '32', '50'], // km values: saved before the Distance/Drive switch
     count: ['10', '20', '30'],
+    miles: Array.from({ length: 31 }, (_, i) => String(i + 1)),
     driveMinutes: ['15', '20', '25', '30', '35', '40', '45', '50', '55', '60', '65', '70', '75', '80', '85', '90']
 };
 
