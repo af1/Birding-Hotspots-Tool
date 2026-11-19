@@ -1,5 +1,6 @@
 /* CSS Custom Properties */
 :root {
+    color-scheme: light;
     --primary-color: #2F5D50;
     --primary-hover: #234639;
     --primary-light: #4C7F70;
@@ -74,6 +75,7 @@
 /* Dark Mode - System Preference */
 @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
+        color-scheme: dark; /* native controls (number arrows, selects, scrollbars) match the theme */
         --lifer-highlight: #8DB8FF;
     --btn-to: #3F7062;
     --btn-from: #3F7062;
@@ -120,6 +122,7 @@
 
 /* Dark Mode - Manual Toggle */
 [data-theme="dark"] {
+        color-scheme: dark; /* native controls (number arrows, selects, scrollbars) match the theme */
         --lifer-highlight: #8DB8FF;
     --btn-to: #3F7062;
     --btn-from: #3F7062;
@@ -6493,7 +6496,14 @@ details.about-section[open] .about-chevron {
 }
 
 .settings-sidebar .section-header {
-    margin-bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.settings-sidebar .section-header .section-title {
+    margin: 0;
 }
 
 .settings-sidebar .input-group {
@@ -7210,10 +7220,16 @@ details.about-section[open] .about-chevron {
     padding-right: 64px;
 }
 
-/* Reset: comfortable hit area and inset text */
+/* Reset: a slim text action level with the section label */
 .settings-sidebar .btn-reset {
-    padding: 6px 12px;
-    min-height: 30px;
+    padding: 4px 8px;
+    min-height: 0;
+    border-color: transparent;
+    font-size: 0.75rem;
+}
+
+.settings-sidebar .btn-reset:hover {
+    border-color: var(--border-color);
 }
 
 /* Map preview: compact, it is only a confirmation glance */
@@ -7266,4 +7282,9 @@ details.about-section[open] .about-chevron {
     flex: none;
     text-align: end;
     font-variant-numeric: tabular-nums;
+}
+
+/* Number boxes: keep the value clear of the native arrows */
+.settings-sidebar .area-amount-input {
+    padding-right: 6px;
 }
