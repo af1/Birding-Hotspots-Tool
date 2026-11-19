@@ -6820,22 +6820,101 @@ class BirdingHotspotsApp {
         // Create seasonal insights section — pass real observations for data-driven best-time chart
         const seasonalInsights = this.createSeasonalInsightsSection(hotspot.recentObservations || []);
 
-        // Assemble details body
+        // ---- Row: one line per hotspot, lifer count on the right; click expands ----
+        //   [1] Tomhannock Reservoir               3 lifers  ⌄
+        //       45 min drive (30 mi) · 4 species
+        const rowHeading = document.createElement('h3');
+        rowHeading.className = 'hotspot-row-heading';
+        const row = document.createElement('button');
+        row.type = 'button';
+        row.className = 'hotspot-row';
+        row.setAttribute('aria-expanded', 'false');
+        row.setAttribute('aria-controls', detailsBody.id);
+
+        const rowNumber = document.createElement('span');
+        rowNumber.className = 'hotspot-row-number';
+        rowNumber.textContent = number;
+
+        const rowMain = document.createElement('span');
+        rowMain.className = 'hotspot-row-main';
+        const rowName = document.createElement('span');
+        rowName.className = 'hotspot-row-name';
+        rowName.textContent = hotspot.name;
+        const rowMeta = document.createElement('span');
+        rowMeta.className = 'hotspot-row-meta';
+        rowMeta.textContent = `${travel.textContent} · ${hotspot.speciesCount} species`;
+        rowMain.append(rowName, rowMeta);
+
+        const rowCount = document.createElement('span');
+        rowCount.className = 'hotspot-row-count';
+        if (hasLifers) {
+            const noun = this.getTargetRegionList() ? 'new' : (liferBirds.length === 1 ? 'lifer' : 'lifers');
+            rowCount.textContent = `${liferBirds.length} ${noun}`;
+        } else if (this.hasTargetList()) {
+            rowCount.textContent = 'No lifers';
+            rowCount.classList.add('is-zero');
+        } else {
+            rowCount.textContent = `${hotspot.speciesCount} species`;
+            rowCount.classList.add('is-zero');
+        }
+
+        row.append(rowNumber, rowMain, rowCount, createSVGIcon('chevron', 18, 'chevron'));
+        rowHeading.appendChild(row);
+        row.addEventListener('click', () => {
+            const expanded = row.getAttribute('aria-expanded') === 'true';
+            row.setAttribute('aria-expanded', String(!expanded));
+            detailsBody.classList.toggle('hidden', expanded);
+            card.classList.toggle('is-open', !expanded);
+        });
+
+        // ---- Expanded body: actions, lifer table, then the existing details ----
+        const actions = document.createElement('div');
+        actions.className = 'hotspot-row-actions';
+        actions.append(links, favoriteBtn);
+
+        // Lifers only lead the body; the row already counts them
+        badges.querySelectorAll('.lifer-badge').forEach(b => b.remove());
+
+        detailsBody.appendChild(actions);
+        if (badges.childElementCount > 0) detailsBody.appendChild(badges);
+        if (hasLifers) detailsBody.appendChild(this.createLiferTable(liferBirds));
         if (notableHighlight) detailsBody.appendChild(notableHighlight);
-        if (liferHighlight) detailsBody.appendChild(liferHighlight);
         if (weatherBadge) detailsBody.appendChild(weatherBadge);
         if (address) detailsBody.appendChild(address);
         detailsBody.appendChild(speciesSection);
         if (seasonalInsights) detailsBody.appendChild(seasonalInsights);
 
-        // Assemble card
-        card.appendChild(header);
-        if (badges.childElementCount > 0) card.appendChild(badges);
-        if (forYou) card.appendChild(forYou);
-        card.appendChild(detailsToggle);
+        card.classList.add('hotspot-card-row');
+        card.appendChild(rowHeading);
         card.appendChild(detailsBody);
 
         return card;
+    }
+
+    /**
+     * Table of the hotspot's lifers: species, when last reported, how many.
+     * @param {Array} lifers - Birds flagged isLifer, freshest first
+     */
+    createLiferTable(lifers) {
+        const table = document.createElement('table');
+        table.className = 'lifer-table';
+
+        const head = table.createTHead().insertRow();
+        for (const label of ['Lifer', 'Last reported', 'Count']) {
+            const th = document.createElement('th');
+            th.scope = 'col';
+            th.textContent = label;
+            head.appendChild(th);
+        }
+
+        const body = table.createTBody();
+        for (const bird of lifers) {
+            const tr = body.insertRow();
+            tr.insertCell().textContent = bird.comName;
+            tr.insertCell().textContent = this.formatRelativeDate(bird.lastSeen);
+            tr.insertCell().textContent = bird.count ?? '';
+        }
+        return table;
     }
 
     /**
