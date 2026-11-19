@@ -2671,6 +2671,31 @@ class BirdingHotspotsApp {
     }
 
     /**
+     * Run the full drive-time area search with progress in the loading overlay,
+     * recording any eBird areas or hotspots that could not be checked.
+     */
+    async searchDriveArea(origin, minutes) {
+        const onProgress = (phase, done, total) => {
+            if (phase === 'area') {
+                this.updateLoading(`Finding hotspots within ${minutes} min (${done}/${total} areas)...`, 15 + Math.round(5 * done / total));
+            } else {
+                this.updateLoading(`Checking drive times (${done}/${total})...`, 20 + Math.round(5 * done / total));
+            }
+        };
+
+        const { hotspots, missedTiles, unroutable } =
+            await findDriveHotspots(this.ebirdApi, origin, minutes, this.abortController.signal, onProgress);
+
+        if (missedTiles > 0) {
+            this.partialFailures.push(`eBird hotspots for ${missedTiles} part${missedTiles > 1 ? 's' : ''} of the drive area`);
+        }
+        if (unroutable > 0) {
+            this.partialFailures.push(`drive times for ${unroutable} hotspot${unroutable > 1 ? 's' : ''}`);
+        }
+        return hotspots;
+    }
+
+    /**
      * Drive-time limit in minutes, or null when Distance is selected
      */
     getDriveMinutes() {
@@ -2813,7 +2838,7 @@ class BirdingHotspotsApp {
             const searchRange = this.getSearchRange();
             const driveMinutes = this.getDriveMinutes();
             let hotspots = driveMinutes
-                ? await findDriveHotspots(this.ebirdApi, origin, driveMinutes, this.abortController.signal)
+                ? await this.searchDriveArea(origin, driveMinutes)
                 : await this.ebirdApi.getNearbyHotspots(
                     origin.lat,
                     origin.lng,

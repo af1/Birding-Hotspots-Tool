@@ -340,7 +340,7 @@
                     <!-- Search Range -->
                     <div class="advanced-option-group" id="searchRangeSection">
                         <fieldset class="fieldset-reset">
-                            <legend class="advanced-option-label has-tooltip tooltip-left" data-tooltip="Straight-line distance (eBird allows up to 31 miles) or real driving time (15 to 90 minutes).">Area</legend>
+                            <legend class="advanced-option-label has-tooltip tooltip-left" data-tooltip="Straight-line distance (eBird allows up to 31 miles) or real driving time (15 minutes to 3 hours).">Area</legend>
                             <div class="range-options">
                                 <label class="radio-label">
                                     <input type="radio" name="searchRange" value="distance" checked>
@@ -360,7 +360,7 @@
                             </div>
                             <div class="area-amount hidden" id="driveMinutesGroup">
                                 <label for="driveMinutes">Up to</label>
-                                <input type="number" id="driveMinutes" class="text-input area-amount-input" min="15" max="90" step="5" value="45" inputmode="numeric">
+                                <input type="number" id="driveMinutes" class="text-input area-amount-input" min="15" max="180" step="5" value="45" inputmode="numeric">
                                 <span>minutes</span>
                             </div>
                         </fieldset>

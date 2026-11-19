@@ -126,30 +126,68 @@ export async function getDrivingRoutes(originLat, originLng, destinations, signa
 }
 
 /**
- * Drive durations from origin to many destinations, chunked to fit the
- * public OSRM server's table size limit. Failed chunks yield nulls.
+ * Drive durations from origin to many destinations, chunked to the public
+ * OSRM server's table size and paced to its ~1 request/second policy.
+ * A failed chunk is retried once; if it fails again its entries are null.
  * @param {{lat: number, lng: number}} origin
  * @param {Array<{lat: number, lng: number}>} destinations
+ * @param {AbortSignal} [signal]
+ * @param {(done: number, total: number) => void} [onProgress] - called after each chunk
  * @returns {Promise<Array<{distance: number, duration: number}|null>>}
  */
-export async function getDriveDurations(origin, destinations, signal) {
-    const { TABLE_CHUNK_SIZE } = CONFIG.OSRM;
+export async function getDriveDurations(origin, destinations, signal, onProgress) {
+    const { TABLE_CHUNK_SIZE, TABLE_PACE_MS } = CONFIG.OSRM;
+    const total = Math.ceil(destinations.length / TABLE_CHUNK_SIZE);
     const results = [];
 
     for (let i = 0; i < destinations.length; i += TABLE_CHUNK_SIZE) {
+        // Pace every request after the first
+        if (i > 0) {
+            await wait(TABLE_PACE_MS, signal);
+        }
         const chunk = destinations.slice(i, i + TABLE_CHUNK_SIZE);
+        results.push(...await tableChunkWithRetry(origin, chunk, signal));
+        onProgress?.(i / TABLE_CHUNK_SIZE + 1, total);
+    }
+
+    return results;
+}
+
+/**
+ * One table request, retried once after a pause; nulls if both attempts fail.
+ */
+async function tableChunkWithRetry(origin, chunk, signal) {
+    for (let attempt = 0; attempt < 2; attempt++) {
         try {
-            results.push(...await getDrivingDistancesTable(origin.lat, origin.lng, chunk, signal));
+            return await getDrivingDistancesTable(origin.lat, origin.lng, chunk, signal);
         } catch (error) {
             if (error.name === 'AbortError') {
                 throw error;
             }
-            console.warn('OSRM table chunk failed:', error.message);
-            results.push(...chunk.map(() => null));
+            console.warn(`OSRM table chunk failed (attempt ${attempt + 1}):`, error.message);
+            if (attempt === 0) {
+                await wait(CONFIG.OSRM.RETRY_DELAY_MS, signal);
+            }
         }
     }
+    return chunk.map(() => null);
+}
 
-    return results;
+/**
+ * Sleep that rejects with AbortError when the search is cancelled.
+ */
+function wait(ms, signal) {
+    return new Promise((resolve, reject) => {
+        if (signal?.aborted) {
+            reject(new DOMException('Aborted', 'AbortError'));
+            return;
+        }
+        const timer = setTimeout(resolve, ms);
+        signal?.addEventListener('abort', () => {
+            clearTimeout(timer);
+            reject(new DOMException('Aborted', 'AbortError'));
+        }, { once: true });
+    });
 }
 
 /**

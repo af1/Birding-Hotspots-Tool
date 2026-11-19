@@ -68,10 +68,16 @@ export function buildDriveSamplePoints(origin, radiusKm) {
 }
 
 /**
- * Find eBird hotspots reachable within `minutes` of driving.
- * Returns hotspots richest-first, each with `driveDuration` (s) and `driveDistance` (km).
+ * Find every eBird hotspot reachable within `minutes` of driving.
+ * No sampling: every hotspot inside the straight-line reach disc gets a real
+ * drive time, so the whole area is covered (3 h can mean dozens of OSRM calls).
+ *
+ * @param {(phase: 'area'|'drive', done: number, total: number) => void} [onProgress]
+ * @returns {Promise<{hotspots: Array, missedTiles: number, unroutable: number}>}
+ *   hotspots richest-first, each with `driveDuration` (s) and `driveDistance` (km);
+ *   missedTiles/unroutable count eBird areas and hotspots that could not be checked
  */
-export async function findDriveHotspots(ebirdApi, origin, minutes, signal) {
+export async function findDriveHotspots(ebirdApi, origin, minutes, signal, onProgress) {
     const radiusKm = maxReachKm(minutes);
     const points = buildDriveSamplePoints(origin, radiusKm);
 
@@ -87,23 +93,24 @@ export async function findDriveHotspots(ebirdApi, origin, minutes, signal) {
         results.push(...await Promise.allSettled(batch.map(p =>
             ebirdApi.getNearbyHotspots(p.lat, p.lng, SEARCH_RADIUS_KM, CONFIG.DEFAULT_DAYS_BACK)
         )));
+        onProgress?.('area', results.length, points.length);
     }
     const tiles = results.filter(r => r.status === 'fulfilled').map(r => r.value);
     if (tiles.length === 0) {
         throw results[0].reason;
     }
 
-    // Straight-line prefilter, then cap OSRM work to the richest candidates
+    // Straight-line prefilter only: anything farther than the reach disc cannot qualify
     const candidates = dedupeHotspotsById(tiles)
         .filter(h => calculateDistance(origin.lat, origin.lng, h.lat, h.lng) <= radiusKm)
-        .sort((a, b) => (b.numSpeciesAllTime || 0) - (a.numSpeciesAllTime || 0))
-        .slice(0, CONFIG.DRIVE_TIME.MAX_CANDIDATES);
+        .sort((a, b) => (b.numSpeciesAllTime || 0) - (a.numSpeciesAllTime || 0));
 
-    // Real drive times decide membership
-    const routes = await getDriveDurations(origin, candidates, signal);
+    // Real drive times decide membership, for every candidate
+    const routes = await getDriveDurations(origin, candidates, signal,
+        (done, total) => onProgress?.('drive', done, total));
     const limitSeconds = minutes * SECONDS_PER_MINUTE;
 
-    return candidates
+    const hotspots = candidates
         .map((h, i) => ({ hotspot: h, route: routes[i] }))
         .filter(({ route }) => route && route.duration <= limitSeconds)
         .map(({ hotspot, route }) => ({
@@ -111,4 +118,10 @@ export async function findDriveHotspots(ebirdApi, origin, minutes, signal) {
             driveDuration: route.duration,
             driveDistance: route.distance
         }));
+
+    return {
+        hotspots,
+        missedTiles: results.length - tiles.length,
+        unroutable: routes.filter(r => r === null).length
+    };
 }

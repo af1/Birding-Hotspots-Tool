@@ -2156,6 +2156,11 @@ details.about-section[open] .about-chevron {
     box-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
+/* Leaflet sets .leaflet-marker-icon { display: block }; win so the house centers */
+.leaflet-marker-icon.origin-marker {
+    display: flex;
+}
+
 .origin-marker {
     background: var(--primary-color);
     border: 3px solid white;
