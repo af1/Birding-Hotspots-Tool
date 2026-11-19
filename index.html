@@ -485,15 +485,17 @@
                                     31 miles (eBird limit)
                                 </label>
                                 <label class="radio-label">
-                                    <input type="radio" name="searchRange" value="drive30">
+                                    <input type="radio" name="searchRange" value="drive">
                                     <span class="radio-custom"></span>
-                                    30 min drive
+                                    Drive time
                                 </label>
-                                <label class="radio-label">
-                                    <input type="radio" name="searchRange" value="drive60">
-                                    <span class="radio-custom"></span>
-                                    60 min drive
+                            </div>
+                            <div class="input-group drive-minutes-group hidden" id="driveMinutesGroup">
+                                <label for="driveMinutes" class="input-label">
+                                    Max drive: <span id="driveMinutesValue">45</span> min
                                 </label>
+                                <input type="range" id="driveMinutes" class="range-input" min="15" max="90" step="5" value="45" aria-describedby="driveMinutesHelp">
+                                <p id="driveMinutesHelp" class="help-text">Only hotspots you can reach within this many minutes of driving.</p>
                             </div>
                         </fieldset>
                     </div>

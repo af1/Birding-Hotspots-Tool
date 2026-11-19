@@ -12,8 +12,9 @@ const { STORAGE_KEYS } = CONFIG;
  */
 export const SEARCH_OPTION_VALUES = {
     sort: ['species', 'distance', 'driving', 'recency'],
-    range: ['16', '32', '50'],
-    count: ['10', '20', '30']
+    range: ['16', '32', '50', 'drive'],
+    count: ['10', '20', '30'],
+    driveMinutes: ['15', '20', '25', '30', '35', '40', '45', '50', '55', '60', '65', '70', '75', '80', '85', '90']
 };
 
 function filterSearchOptions(options) {

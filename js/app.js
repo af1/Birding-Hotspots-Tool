@@ -7,7 +7,7 @@ import { validateCoordinates, validateApiKey, validateAddress, validateFavoriteN
 import { calculateDistance, formatDistance, formatDuration, getGoogleMapsSearchUrl, getGoogleMapsDirectionsUrl, getGoogleMapsRouteUrl, getEbirdHotspotUrl } from './utils/formatters.js';
 import { createSVGIcon, ICONS } from './utils/icons.js';
 import { clearElement } from './utils/dom-helpers.js';
-import { storage } from './services/storage.js';
+import { storage, SEARCH_OPTION_VALUES } from './services/storage.js';
 import { geocodeAddress, getCurrentPosition } from './api/geocoding.js';
 import { reverseGeocode, batchReverseGeocode } from './api/reverse-geo.js';
 import { EBirdAPI, processObservations } from './api/ebird.js';
@@ -101,6 +101,9 @@ class BirdingHotspotsApp {
 
             // Search range
             searchRangeRadios: document.querySelectorAll('[name="searchRange"]'),
+            driveMinutes: document.getElementById('driveMinutes'),
+            driveMinutesValue: document.getElementById('driveMinutesValue'),
+            driveMinutesGroup: document.getElementById('driveMinutesGroup'),
 
             // Hotspots count
             hotspotsCountRadios: document.querySelectorAll('[name="hotspotsCount"]'),
@@ -521,6 +524,14 @@ class BirdingHotspotsApp {
         [this.elements.sortMethodRadios, this.elements.searchRangeRadios, this.elements.hotspotsCountRadios]
             .forEach(radios => radios.forEach(radio => radio.addEventListener('change', () => { this.saveSearchOptions(); this.updateSearchOptionsSummary(); })));
 
+        // Drive-time slider: show/hide with the range choice, persist and summarize on move
+        this.elements.searchRangeRadios.forEach(radio => radio.addEventListener('change', () => this.syncDriveMinutes()));
+        this.elements.driveMinutes.addEventListener('input', () => {
+            this.syncDriveMinutes();
+            this.saveSearchOptions();
+            this.updateSearchOptionsSummary();
+        });
+
         // Favorite hotspots collapsible toggle
         if (this.elements.favoriteHotspotsToggle) {
             this.elements.favoriteHotspotsToggle.addEventListener('click', () => this.toggleFavoriteHotspots());
@@ -829,6 +840,12 @@ class BirdingHotspotsApp {
             const radio = document.querySelector(`[name="${name}"][value="${saved[key]}"]`);
             if (radio) radio.checked = true;
         }
+
+        // Slider value is allowlisted in storage like the radios
+        if (saved.driveMinutes) {
+            this.elements.driveMinutes.value = saved.driveMinutes;
+        }
+        this.syncDriveMinutes();
     }
 
     /**
@@ -838,7 +855,8 @@ class BirdingHotspotsApp {
         storage.setSearchOptions({
             sort: this._checkedValue(this.elements.sortMethodRadios),
             range: this._checkedValue(this.elements.searchRangeRadios),
-            count: this._checkedValue(this.elements.hotspotsCountRadios)
+            count: this._checkedValue(this.elements.hotspotsCountRadios),
+            driveMinutes: this.elements.driveMinutes.value
         });
     }
 
@@ -2080,6 +2098,13 @@ class BirdingHotspotsApp {
             if (rangeRadio) rangeRadio.checked = true;
         }
 
+        // Drive-time minutes, only accepted from the slider's own allowlist
+        const minutes = params.get('minutes');
+        if (minutes && SEARCH_OPTION_VALUES.driveMinutes.includes(minutes)) {
+            this.elements.driveMinutes.value = minutes;
+        }
+        this.syncDriveMinutes();
+
         // Set hotspot count if provided
         const count = params.get('count');
         if (count) {
@@ -2137,6 +2162,7 @@ class BirdingHotspotsApp {
 
         const searchRange = this._checkedValue(this.elements.searchRangeRadios);
         if (searchRange) params.set('range', searchRange);
+        if (this.getDriveMinutes()) params.set('minutes', this.elements.driveMinutes.value);
 
         const hotspotsCount = this._checkedValue(this.elements.hotspotsCountRadios);
         if (hotspotsCount) params.set('count', hotspotsCount);
@@ -2411,11 +2437,21 @@ class BirdingHotspotsApp {
     }
 
     /**
-     * Selected drive-time limit in minutes ("drive60" -> 60), or null for radius mode
+     * Drive-time limit in minutes from the slider, or null when a radius is selected
      */
     getDriveMinutes() {
-        const match = /^drive(\d+)$/.exec(this._checkedValue(this.elements.searchRangeRadios, ''));
-        return match ? parseInt(match[1], 10) : null;
+        if (this._checkedValue(this.elements.searchRangeRadios) !== 'drive') {
+            return null;
+        }
+        return parseInt(this.elements.driveMinutes.value, 10);
+    }
+
+    /**
+     * Show the minutes slider only in drive-time mode and mirror its value in the label
+     */
+    syncDriveMinutes() {
+        this.elements.driveMinutesGroup.classList.toggle('hidden', this.getDriveMinutes() === null);
+        this.elements.driveMinutesValue.textContent = this.elements.driveMinutes.value;
     }
 
     /**
