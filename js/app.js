@@ -90,7 +90,6 @@ class BirdingHotspotsApp {
             latitude: document.getElementById('latitude'),
             longitude: document.getElementById('longitude'),
             useCurrentLocation: document.getElementById('useCurrentLocation'),
-            quickStartNearMe: document.getElementById('quickStartNearMe'),
 
             // API key
             apiKey: document.getElementById('apiKey'),
@@ -99,7 +98,7 @@ class BirdingHotspotsApp {
             rememberKey: document.getElementById('rememberKey'),
 
             // Sort options
-            sortMethodRadios: document.querySelectorAll('[name="sortMethod"]'),
+            sortMethod: document.getElementById('sortMethod'),
 
             // Search range
             searchRangeRadios: document.querySelectorAll('[name="searchRange"]'),
@@ -528,12 +527,16 @@ class BirdingHotspotsApp {
         }
 
         // One-click quick start for casual use: locate, then search with current options
-        if (this.elements.quickStartNearMe) {
-            this.elements.quickStartNearMe.addEventListener('click', () => this.handleQuickStart());
-        }
+
 
         // Remember Advanced Options across visits
-        [this.elements.sortMethodRadios, this.elements.searchRangeRadios, this.elements.hotspotsCountRadios]
+        this.elements.sortMethod.addEventListener('change', () => { this.saveSearchOptions(); this.updateSearchOptionsSummary(); });
+
+        // Keep the results sidebar (and its pinned Find Hotspots) inside the viewport
+        const fitSidebar = () => this.fitSidebarToViewport();
+        window.addEventListener('scroll', fitSidebar, { passive: true });
+        window.addEventListener('resize', fitSidebar);
+        [this.elements.searchRangeRadios, this.elements.hotspotsCountRadios]
             .forEach(radios => radios.forEach(radio => radio.addEventListener('change', () => { this.saveSearchOptions(); this.updateSearchOptionsSummary(); })));
 
         // Drive-time slider: show/hide with the range choice, persist and summarize on move
@@ -846,7 +849,10 @@ class BirdingHotspotsApp {
      */
     restoreSearchOptions() {
         const saved = storage.getSearchOptions();
-        const groups = { sort: 'sortMethod', range: 'searchRange', count: 'hotspotsCount' };
+        if (saved.sort) {
+            this.elements.sortMethod.value = saved.sort;
+        }
+        const groups = { range: 'searchRange', count: 'hotspotsCount' };
         for (const [key, name] of Object.entries(groups)) {
             if (!saved[key]) continue;
             const radio = document.querySelector(`[name="${name}"][value="${saved[key]}"]`);
@@ -865,33 +871,11 @@ class BirdingHotspotsApp {
      */
     saveSearchOptions() {
         storage.setSearchOptions({
-            sort: this._checkedValue(this.elements.sortMethodRadios),
+            sort: (this.elements.sortMethod.value || 'newbirds'),
             range: this._checkedValue(this.elements.searchRangeRadios),
             count: this._checkedValue(this.elements.hotspotsCountRadios),
             driveMinutes: this.elements.driveMinutes.value
         });
-    }
-
-    /**
-     * One-click quick start: switch to a plain hotspot search, use the
-     * device location, then run the search with the current options.
-     * Errors from geolocation and API-key validation surface through the
-     * handlers' own error paths.
-     */
-    async handleQuickStart() {
-        if (this.isProcessing) return;
-        const btn = this.elements.quickStartNearMe;
-        btn.disabled = true;
-        try {
-            this.setSearchType('location');
-            this.setSearchSubMode('hotspot');
-            this.currentLocation = null;
-            await this.handleUseCurrentLocation();
-            if (!this.currentLocation) return;
-            await this.handleGenerateReport();
-        } finally {
-            btn.disabled = false;
-        }
     }
 
     /**
@@ -1835,6 +1819,20 @@ class BirdingHotspotsApp {
      * Update the life list count badge in the UI
      */
     /**
+     * Cap the sticky sidebar to the visible space below its top edge.
+     * Before the page scrolls, the header pushes the sidebar down, so a
+     * 100vh cap would hide its bottom (and the Find Hotspots button).
+     */
+    fitSidebarToViewport() {
+        const sidebar = this.elements.mainContent.querySelector('.settings-sidebar');
+        if (!sidebar) {
+            return;
+        }
+        const top = Math.max(sidebar.getBoundingClientRect().top, 0);
+        this.elements.mainContent.style.setProperty('--sidebar-max-height', `${window.innerHeight - top - 16}px`);
+    }
+
+    /**
      * Region list chosen in "Count birds as new to", or null for the imported list
      */
     getTargetRegionList() {
@@ -2205,8 +2203,9 @@ class BirdingHotspotsApp {
         // Set sort method if provided
         const sort = params.get('sort');
         if (sort) {
-            const sortRadio = document.querySelector(`[name="sortMethod"][value="${sort}"]`);
-            if (sortRadio) sortRadio.checked = true;
+            if (SEARCH_OPTION_VALUES.sort.includes(sort)) {
+                this.elements.sortMethod.value = sort;
+            }
         }
 
         // Set search range if provided
@@ -2275,7 +2274,7 @@ class BirdingHotspotsApp {
             params.set('addr', origin.address);
         }
 
-        const sortMethod = this._checkedValue(this.elements.sortMethodRadios);
+        const sortMethod = (this.elements.sortMethod.value || 'newbirds');
         if (sortMethod) params.set('sort', sortMethod);
 
         const searchRange = this._checkedValue(this.elements.searchRangeRadios);
@@ -2728,7 +2727,7 @@ class BirdingHotspotsApp {
             }
 
             // Sort based on user selection
-            const sortMethod = this._checkedValue(this.elements.sortMethodRadios, 'species');
+            const sortMethod = (this.elements.sortMethod.value || 'species');
             const sortedHotspots = this.sortHotspots(enrichedHotspots, sortMethod, origin);
 
             // Store results for later PDF export
@@ -3046,6 +3045,7 @@ class BirdingHotspotsApp {
 
         // Switch to two-column layout
         this.elements.mainContent.classList.add('has-results');
+        this.fitSidebarToViewport();
 
         // Ensure export PDF/GPX buttons are visible (may have been hidden in route mode)
         this.elements.exportPdfBtn.classList.remove('hidden');
@@ -4176,8 +4176,6 @@ class BirdingHotspotsApp {
         const parts = [driveMinutes ? `Within ${driveMinutes} min drive` : `Within ${Math.round(rangeKm * 0.621371)} mi`];
         if (this.searchSubMode !== 'species') {
             parts.push(`Top ${this._checkedValue(this.elements.hotspotsCountRadios, '10')}`);
-            const sortLabels = { species: 'Most species', distance: 'Closest', driving: 'Shortest drive', recency: 'Freshest sightings', newbirds: 'Most new birds' };
-            parts.push(sortLabels[this._checkedValue(this.elements.sortMethodRadios, 'species')] || 'Most species');
         }
         el.textContent = parts.join(' · ');
     }
@@ -7639,6 +7637,7 @@ class BirdingHotspotsApp {
 
         // Present the results area in "itinerary only" mode
         this.elements.mainContent.classList.add('has-results');
+        this.fitSidebarToViewport();
         this.elements.resultsSection.classList.remove('hidden');
         this.setResultsTitle('Saved itinerary', saved.name);
         this.hideQuickPicks();
@@ -8099,7 +8098,6 @@ class BirdingHotspotsApp {
         // Move focus to Cancel so keyboard users can abort, then trap focus within the overlay
         this.elements.cancelSearch.focus();
         this._loadingTrapCleanup = this._trapFocus(this.elements.loadingOverlay);
-        if (this.elements.quickStartNearMe) this.elements.quickStartNearMe.disabled = true;
         // Show skeleton cards in the results area
         this.showSkeletonCards();
     }
@@ -8124,7 +8122,6 @@ class BirdingHotspotsApp {
             this._loadingTrapCleanup = null;
         }
         this.elements.loadingOverlay.classList.add('hidden');
-        if (this.elements.quickStartNearMe) this.elements.quickStartNearMe.disabled = false;
         this.removeSkeletonCards();
         // Restore focus to the trigger element (e.g. the Generate button)
         if (this._loadingPreviousFocus) {

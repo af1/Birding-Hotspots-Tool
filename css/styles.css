@@ -367,7 +367,7 @@ body {
     .main-content.has-results .settings-sidebar {
         position: sticky;
         top: var(--spacing-md);
-        max-height: calc(100vh - var(--spacing-lg));
+        max-height: var(--sidebar-max-height, calc(100vh - var(--spacing-lg)));
         overflow-y: auto;
         scrollbar-width: thin;
         scrollbar-color: var(--border-color) transparent;
@@ -5623,15 +5623,42 @@ details.about-section[open] .about-chevron {
    saved-itinerary actions
    ========================================================================== */
 
-.quick-start-btn {
-    width: 100%;
-    margin-top: var(--spacing-sm, 16px);
-    justify-content: center;
+/* Sort dropdown + Find Hotspots: one compact action block */
+.search-action {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
-.quick-start-hint {
-    text-align: center;
-    margin-top: 6px;
+.sort-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sort-row-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.sort-row-select {
+    flex: 1;
+    min-width: 0;
+}
+
+/* With results beside it, keep the action pinned to the sidebar's bottom edge */
+@media (min-width: 768px) {
+    .main-content.has-results .search-action {
+        order: 99; /* last in the flex column so nothing scrolls below it */
+        position: sticky;
+        bottom: 0;
+        z-index: 2;
+        padding: 10px 0 12px;
+        background: var(--background);
+        box-shadow: 0 -8px 12px -8px rgba(0, 0, 0, 0.12);
+    }
 }
 
 .quick-picks {
