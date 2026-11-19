@@ -1,39 +1,39 @@
 /* CSS Custom Properties */
 :root {
-    --primary-color: #8C3B2A;
-    --primary-hover: #73301F;
-    --primary-light: #A9523E;
-    --secondary-color: #5E7A4F;
-    --accent-color: #B8862B;
-    --accent-hover: #C99A3E;
-    --background: #F1EADA;
-    --card-bg: #FBF8F0;
-    --text-primary: #2A2620;
-    --text-secondary: #5E554A;
-    --text-light: #5E554A; /* WCAG AA compliant contrast ratio 4.5:1 on white */
-    --border-color: #D9CFBC;
+    --primary-color: #2F5D50;
+    --primary-hover: #234639;
+    --primary-light: #4C7F70;
+    --secondary-color: #7FA38E;
+    --accent-color: #C8A24A;
+    --accent-hover: #D6B566;
+    --background: #EEF1EC;
+    --card-bg: #FFFFFF;
+    --text-primary: #1F2421;
+    --text-secondary: #4F5A52;
+    --text-light: #4F5A52; /* WCAG AA compliant contrast ratio 4.5:1 on white */
+    --border-color: #D2DACF;
     --error: #D32F2F;
     --error-bg: #FFEBEE;
     --success: #388E3C;
     --notable-highlight: #FF5722;
     --lifer-highlight: #6A1B9A;
     /* Text-safe primary and button fill: keep WCAG AA (4.5:1) in both themes */
-    --primary-text: #8C3B2A;
+    --primary-text: #2F5D50;
     --lifer-badge-text: #6A1B9A;
-    --btn-from: #8C3B2A;
-    --btn-to: #8C3B2A;
+    --btn-from: #1F2421;
+    --btn-to: #1F2421;
     --lifer-bg: #F3E5F5;
-    --shadow: 0 1px 2px rgba(42, 38, 32, 0.06), 0 4px 12px rgba(42, 38, 32, 0.06);
-    --shadow-hover: 0 2px 4px rgba(42, 38, 32, 0.08), 0 8px 20px rgba(42, 38, 32, 0.08);
+    --shadow: 0 1px 2px rgba(31, 36, 33, 0.06), 0 4px 12px rgba(31, 36, 33, 0.06);
+    --shadow-hover: 0 2px 4px rgba(31, 36, 33, 0.08), 0 8px 20px rgba(31, 36, 33, 0.08);
     --radius: 4px;
     --radius-large: 6px;
     --transition: 0.2s ease;
-    --hover-bg: #EFE7D6;
+    --hover-bg: #E7ECE4;
     /* Typography */
-    --font-heading: 'Newsreader', Georgia, 'Times New Roman', serif;
-    --font-body: 'Libre Franklin', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-heading: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-body: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     /* Card hierarchy */
-    --card-bg-muted: #F5EFE2;
+    --card-bg-muted: #F5F7F3;
     /* Target/alert/stop semantic colors */
     --target-color: #2196F3;
     --target-hover: #1976D2;
@@ -74,24 +74,26 @@
 /* Dark Mode - System Preference */
 @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-        --primary-color: #A9523E;
-        --primary-text: #E2957C;
+    --btn-to: #3F7062;
+    --btn-from: #3F7062;
+        --primary-color: #3F7062;
+        --primary-text: #8FC2B1;
         --lifer-badge-text: #CE93D8;
-        --primary-hover: #BF6450;
-        --primary-light: #C97A64;
-        --secondary-color: #93AE82;
-        --background: #1C1915;
-        --card-bg: #26221C;
-        --text-primary: #EDE5D3;
-        --text-secondary: #B4A994;
-        --text-light: #B4A994;
-        --border-color: #3C362D;
+        --primary-hover: #4C8273;
+        --primary-light: #6FA594;
+        --secondary-color: #9DBBA9;
+        --background: #141815;
+        --card-bg: #1D2320;
+        --text-primary: #E4EAE5;
+        --text-secondary: #A3B0A7;
+        --text-light: #A3B0A7;
+        --border-color: #2F3833;
         --shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
         --shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.4);
-        --hover-bg: #302B23;
+        --hover-bg: #252C28;
         --error-bg: #3E1E1E;
         --lifer-bg: #2A1E2E;
-        --card-bg-muted: #211E19;
+        --card-bg-muted: #181D1A;
         --confidence-high: #66BB6A;
         --confidence-medium: #FFB74D;
         --confidence-low: #90A4AE;
@@ -117,24 +119,26 @@
 
 /* Dark Mode - Manual Toggle */
 [data-theme="dark"] {
-    --primary-color: #A9523E;
-    --primary-text: #E2957C;
+    --btn-to: #3F7062;
+    --btn-from: #3F7062;
+    --primary-color: #3F7062;
+    --primary-text: #8FC2B1;
     --lifer-badge-text: #CE93D8;
-    --primary-hover: #BF6450;
-    --primary-light: #C97A64;
-    --secondary-color: #93AE82;
-    --background: #1C1915;
-    --card-bg: #26221C;
-    --text-primary: #EDE5D3;
-    --text-secondary: #B4A994;
-    --text-light: #B4A994;
-    --border-color: #3C362D;
+    --primary-hover: #4C8273;
+    --primary-light: #6FA594;
+    --secondary-color: #9DBBA9;
+    --background: #141815;
+    --card-bg: #1D2320;
+    --text-primary: #E4EAE5;
+    --text-secondary: #A3B0A7;
+    --text-light: #A3B0A7;
+    --border-color: #2F3833;
     --shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
     --shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.4);
-    --hover-bg: #302B23;
+    --hover-bg: #252C28;
     --error-bg: #3E1E1E;
     --lifer-bg: #2A1E2E;
-    --card-bg-muted: #211E19;
+    --card-bg-muted: #181D1A;
     /* Semantic colors: softened for dark backgrounds */
     --weather-excellent: #66BB6A;
     --weather-good: #8BC34A;
@@ -215,7 +219,7 @@
     background: color-mix(in srgb, var(--primary-color) 22%, transparent);
 }
 
-/* Browser surfaces themed from the plate palette */
+/* Browser surfaces themed from the palette */
 html {
     accent-color: var(--primary-color);
     caret-color: var(--primary-color);
@@ -304,7 +308,7 @@ body {
 
 .logo-icon {
     flex-shrink: 0;
-    filter: drop-shadow(0 2px 4px rgba(140, 59, 42, 0.35));
+    filter: drop-shadow(0 2px 4px rgba(47, 93, 80, 0.35));
 }
 
 .header h1 {
@@ -574,7 +578,7 @@ body {
 .text-input:focus {
     outline: none;
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(140, 59, 42, 0.45);
+    box-shadow: 0 0 0 3px rgba(47, 93, 80, 0.45);
 }
 
 .text-input::placeholder {
@@ -703,7 +707,7 @@ body {
 
 .radio-card:has(input:checked) {
     border-color: var(--primary-color);
-    background: rgba(140, 59, 42, 0.05);
+    background: rgba(47, 93, 80, 0.05);
 }
 
 .radio-content {
@@ -801,18 +805,18 @@ body {
 .btn-primary {
     background: linear-gradient(135deg, var(--btn-from) 0%, var(--btn-to) 100%);
     color: white;
-    box-shadow: 0 2px 8px rgba(140, 59, 42, 0.25);
+    box-shadow: 0 2px 8px rgba(47, 93, 80, 0.25);
 }
 
 .btn-primary:hover {
     background: linear-gradient(135deg, var(--primary-hover) 0%, var(--primary-color) 100%);
-    box-shadow: 0 4px 16px rgba(140, 59, 42, 0.35);
+    box-shadow: 0 4px 16px rgba(47, 93, 80, 0.35);
     transform: translateY(-1px);
 }
 
 .btn-primary:active {
     transform: translateY(0) scale(0.98);
-    box-shadow: 0 1px 4px rgba(140, 59, 42, 0.2);
+    box-shadow: 0 1px 4px rgba(47, 93, 80, 0.2);
 }
 
 .btn-secondary {
@@ -822,7 +826,7 @@ body {
 }
 
 .btn-secondary:hover {
-    background: rgba(140, 59, 42, 0.1);
+    background: rgba(47, 93, 80, 0.1);
 }
 
 .btn-secondary:active {
@@ -995,7 +999,7 @@ body {
 }
 
 .text-input.success:focus {
-    box-shadow: 0 0 0 3px rgba(140, 59, 42, 0.1);
+    box-shadow: 0 0 0 3px rgba(47, 93, 80, 0.1);
 }
 
 /* Wrapper for input with validation indicator */
@@ -1867,7 +1871,7 @@ body {
 
 /* Touch highlight color */
 * {
-    -webkit-tap-highlight-color: rgba(140, 59, 42, 0.2);
+    -webkit-tap-highlight-color: rgba(47, 93, 80, 0.2);
 }
 
 /* Print Styles */
@@ -2200,7 +2204,7 @@ details.about-section[open] .about-chevron {
     gap: 16px;
     padding: 20px;
     padding-right: 60px; /* Space for star button (16px offset + 36px width + 8px breathing room) */
-    background: linear-gradient(135deg, rgba(140, 59, 42, 0.05) 0%, rgba(126, 179, 86, 0.05) 100%);
+    background: linear-gradient(135deg, rgba(47, 93, 80, 0.05) 0%, rgba(126, 179, 86, 0.05) 100%);
     border-bottom: 1px solid var(--border-color);
 }
 
@@ -2216,7 +2220,7 @@ details.about-section[open] .about-chevron {
     justify-content: center;
     font-weight: 700;
     font-size: 1rem;
-    box-shadow: 0 2px 6px rgba(140, 59, 42, 0.3);
+    box-shadow: 0 2px 6px rgba(47, 93, 80, 0.3);
 }
 
 .hotspot-title-section {
@@ -3419,7 +3423,7 @@ details.about-section[open] .about-chevron {
 .species-search-input:focus {
     outline: none;
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(140, 59, 42, 0.45);
+    box-shadow: 0 0 0 3px rgba(47, 93, 80, 0.45);
 }
 
 .species-search-icon {
@@ -3673,7 +3677,7 @@ details.about-section[open] .about-chevron {
     align-items: flex-start;
     gap: 12px;
     padding: 16px 20px;
-    background: linear-gradient(135deg, rgba(140, 59, 42, 0.05) 0%, rgba(126, 179, 86, 0.05) 100%);
+    background: linear-gradient(135deg, rgba(47, 93, 80, 0.05) 0%, rgba(126, 179, 86, 0.05) 100%);
     border-bottom: 1px solid var(--border-color);
 }
 
@@ -4169,7 +4173,7 @@ details.about-section[open] .about-chevron {
 .select-input:focus {
     outline: none;
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(140, 59, 42, 0.45);
+    box-shadow: 0 0 0 3px rgba(47, 93, 80, 0.45);
 }
 
 /* Range input */
@@ -4886,12 +4890,12 @@ details.about-section[open] .about-chevron {
     font-size: 0.9rem;
     padding: 6px 12px;
     border-radius: 20px;
-    background: rgba(140, 59, 42, 0.1);
+    background: rgba(47, 93, 80, 0.1);
     transition: background 0.2s, color 0.2s;
 }
 
 .header-nav .help-link:hover {
-    background: rgba(140, 59, 42, 0.2);
+    background: rgba(47, 93, 80, 0.2);
     color: var(--primary-text);
 }
 
@@ -5039,8 +5043,8 @@ details.about-section[open] .about-chevron {
 
 .search-type-card.active {
     border-color: var(--primary-color);
-    background: rgba(140, 59, 42, 0.08);
-    box-shadow: 0 2px 12px rgba(140, 59, 42, 0.2);
+    background: rgba(47, 93, 80, 0.08);
+    box-shadow: 0 2px 12px rgba(47, 93, 80, 0.2);
 }
 
 .search-type-icon {
@@ -5148,7 +5152,7 @@ details.about-section[open] .about-chevron {
 }
 
 .collapsible-header:hover {
-    background-color: rgba(140, 59, 42, 0.06);
+    background-color: rgba(47, 93, 80, 0.06);
     border-radius: var(--radius-large);
 }
 
@@ -5935,7 +5939,7 @@ details.about-section[open] .about-chevron {
     font-size: 0.75rem;
     font-weight: 700;
     color: var(--primary-text);
-    background: var(--success-bg, rgba(140, 59, 42, 0.1));
+    background: var(--success-bg, rgba(47, 93, 80, 0.1));
 }
 
 .hotspot-for-you {
@@ -6119,7 +6123,7 @@ details.about-section[open] .about-chevron {
     color: var(--text-secondary);
 }
 
-.quick-pick-label.species { background: var(--success-bg, rgba(140, 59, 42, 0.1)); color: var(--primary-text); }
+.quick-pick-label.species { background: var(--success-bg, rgba(47, 93, 80, 0.1)); color: var(--primary-text); }
 .quick-pick-label.fresh { background: var(--rare-bg, rgba(230, 81, 0, 0.1)); color: var(--rare-text, #E65100); }
 
 .quick-pick-name {
@@ -6181,7 +6185,7 @@ details.about-section[open] .about-chevron {
 .highlight-segment.rare { background: var(--rare-bg, rgba(230, 81, 0, 0.1)); color: var(--rare-text, #E65100); }
 .highlight-segment.targets { background: var(--lifer-bg, rgba(123, 31, 162, 0.08)); color: var(--lifer-text, #7B1FA2); }
 .highlight-segment.excellent,
-.highlight-segment.good { background: var(--success-bg, rgba(140, 59, 42, 0.1)); color: var(--primary-text); }
+.highlight-segment.good { background: var(--success-bg, rgba(47, 93, 80, 0.1)); color: var(--primary-text); }
 .highlight-segment.fair,
 .highlight-segment.poor,
 .highlight-segment.weather { background: var(--hover-bg); color: var(--text-primary); }

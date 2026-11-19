@@ -5469,7 +5469,7 @@ class BirdingHotspotsApp {
             const marker = this.routeHotspotMarkers[index];
             const hasTarget = marker.hasTargetSpecies;
             marker.setStyle({
-                fillColor: selected ? '#8C3B2A' : '#FF9800', // Green if selected, orange if not
+                fillColor: selected ? '#2F5D50' : '#FF9800', // Green if selected, orange if not
                 fillOpacity: selected ? 0.9 : 0.85,
                 // Preserve blue border for target species, otherwise white
                 color: hasTarget ? '#1976D2' : '#fff',
@@ -5890,7 +5890,7 @@ class BirdingHotspotsApp {
         if (itinerary.geometry && itinerary.geometry.coordinates && itinerary.geometry.coordinates.length > 0) {
             const routeCoords = itinerary.geometry.coordinates.map(c => [c[1], c[0]]);
             this.itineraryRouteLine = L.polyline(routeCoords, {
-                color: '#8C3B2A',
+                color: '#2F5D50',
                 weight: 5,
                 opacity: 0.8
             }).addTo(this.resultsMapInstance);
@@ -7029,7 +7029,7 @@ class BirdingHotspotsApp {
         this.currentRouteDataStart = { lat: start.lat, lng: start.lng };
         this.currentRouteDataEnd = { lat: end.lat, lng: end.lng };
         this.routePreviewLine = L.polyline(routeCoords, {
-            color: '#8C3B2A',
+            color: '#2F5D50',
             weight: 4,
             opacity: 0.8
         }).addTo(this.routePreviewMapInstance);
@@ -7392,7 +7392,7 @@ class BirdingHotspotsApp {
         // Add route line from geometry
         const coords = itinerary.geometry.coordinates.map(c => [c[1], c[0]]);
         this.itineraryRouteLine = L.polyline(coords, {
-            color: '#8C3B2A',
+            color: '#2F5D50',
             weight: 4,
             opacity: 0.8
         }).addTo(this.resultsMapInstance);
@@ -7402,7 +7402,7 @@ class BirdingHotspotsApp {
         this.resultsMarkers = [];
 
         itinerary.stops.forEach((stop, index) => {
-            const markerColor = stop.type === 'start' ? '#8C3B2A' :
+            const markerColor = stop.type === 'start' ? '#2F5D50' :
                 stop.type === 'end' ? '#D32F2F' : '#D4A843';
             const markerText = stop.type === 'start' ? 'S' :
                 stop.type === 'end' ? 'E' : index;
