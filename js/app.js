@@ -4190,6 +4190,14 @@ class BirdingHotspotsApp {
         const badge = document.createElement('div');
         badge.className = `weather-badge ${weather.condition}`;
 
+        // After sunset this is tomorrow morning's forecast; label it up front
+        if (weather.forecastLabel) {
+            const when = document.createElement('span');
+            when.className = 'weather-when';
+            when.textContent = `${weather.forecastLabel}:`;
+            badge.appendChild(when);
+        }
+
         // Main weather display
         const main = document.createElement('div');
         main.className = 'weather-main';

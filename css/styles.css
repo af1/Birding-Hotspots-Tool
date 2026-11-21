@@ -7455,3 +7455,8 @@ details.about-section[open] .about-chevron {
     outline: 2px solid var(--primary-color);
     outline-offset: -2px;
 }
+
+.weather-when {
+    font-weight: 600;
+    color: var(--text-primary);
+}

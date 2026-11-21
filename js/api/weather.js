@@ -229,16 +229,16 @@ function formatTime12h(hhmm) {
  * @param {number} utcOffsetSeconds - data.utc_offset_seconds from the same response
  * @returns {Object} Sun time fields
  */
-function parseSunTimes(daily, utcOffsetSeconds) {
-    if (!daily?.sunrise?.[0] || !daily?.sunset?.[0]) {
+function parseSunTimes(daily, utcOffsetSeconds, day = 0) {
+    if (!daily?.sunrise?.[day] || !daily?.sunset?.[day]) {
         return {};
     }
 
-    const sunriseWallClock = daily.sunrise[0].slice(11, 16);
-    const sunsetWallClock = daily.sunset[0].slice(11, 16);
+    const sunriseWallClock = daily.sunrise[day].slice(11, 16);
+    const sunsetWallClock = daily.sunset[day].slice(11, 16);
 
-    const sunriseDate = new Date(Date.parse(`${daily.sunrise[0]}Z`) - utcOffsetSeconds * 1000);
-    const sunsetDate = new Date(Date.parse(`${daily.sunset[0]}Z`) - utcOffsetSeconds * 1000);
+    const sunriseDate = new Date(Date.parse(`${daily.sunrise[day]}Z`) - utcOffsetSeconds * 1000);
+    const sunsetDate = new Date(Date.parse(`${daily.sunset[day]}Z`) - utcOffsetSeconds * 1000);
 
     const daylightMs = sunsetDate - sunriseDate;
     const daylightHours = Math.round((daylightMs / 3600000) * 10) / 10;
@@ -292,18 +292,19 @@ export async function getWeatherForLocation(lat, lng, signal) {
     // Check localStorage cache first (persists across page reloads within the hour)
     const cacheKey = getWeatherCacheKey(lat, lng);
     const cached = getWeatherFromCache(cacheKey);
-    if (cached !== null) return cached;
+    const pastCachedSunset = cached && !cached.forTomorrow && cached.sunsetDate && Date.now() > cached.sunsetDate.getTime();
+    if (cached !== null && !pastCachedSunset) return cached;
 
     const params = new URLSearchParams({
         latitude: lat.toFixed(4),
         longitude: lng.toFixed(4),
         current: 'temperature_2m,relative_humidity_2m,precipitation,weather_code,wind_speed_10m,wind_direction_10m',
         daily: 'sunrise,sunset',
-        hourly: 'precipitation_probability',
+        hourly: 'temperature_2m,relative_humidity_2m,precipitation_probability,weather_code,wind_speed_10m,wind_direction_10m',
         temperature_unit: 'celsius',
         wind_speed_unit: 'kmh',
         timezone: 'auto',
-        forecast_days: 1
+        forecast_days: 2 // tomorrow morning is needed once today's sun has set
     });
 
     try {
@@ -322,30 +323,11 @@ export async function getWeatherForLocation(lat, lng, signal) {
         // Open-Meteo's wall-clock "now" for that location (timezone=auto), not
         // the browser's, so a traveler in a different timezone still gets the
         // right hour's precipitation probability instead of their home hour's.
-        const currentHour = Number(data.current.time?.slice(11, 13)) || 0;
-        const precipProb = data.hourly?.precipitation_probability?.[currentHour] || 0;
-
-        const weatherInfo = getWeatherInfo(data.current.weather_code);
-
-        // Parse sunrise/sunset from daily data
-        const sunData = parseSunTimes(data.daily, data.utc_offset_seconds || 0);
-
-        const result = {
-            temperatureC: Math.round(data.current.temperature_2m),
-            temperatureF: celsiusToFahrenheit(data.current.temperature_2m),
-            humidity: Math.round(data.current.relative_humidity_2m),
-            precipitation: data.current.precipitation,
-            precipitationProbability: precipProb,
-            weatherCode: data.current.weather_code,
-            description: weatherInfo.description,
-            icon: weatherInfo.icon,
-            condition: weatherInfo.condition,
-            windSpeedKmh: Math.round(data.current.wind_speed_10m),
-            windSpeedMph: kmhToMph(data.current.wind_speed_10m),
-            windDirection: getWindDirection(data.current.wind_direction_10m),
-            windDirectionDegrees: data.current.wind_direction_10m,
-            ...sunData
-        };
+        // After sunset at the hotspot (its own wall clock), describe tomorrow morning
+        const afterSunset = Boolean(data.daily?.sunset?.[0]) && data.current.time >= data.daily.sunset[0];
+        const result = afterSunset
+            ? tomorrowMorningWeather(data)
+            : currentWeather(data);
         setWeatherInCache(cacheKey, result);
         return result;
     } catch (error) {
@@ -353,6 +335,81 @@ export async function getWeatherForLocation(lat, lng, signal) {
         console.warn(`Weather fetch failed for ${lat}, ${lng}:`, error);
         return null;
     }
+}
+
+/**
+ * Conditions right now, plus today's sun times.
+ */
+function currentWeather(data) {
+    // Current hour at the hotspot's own local time — data.current.time is
+    // Open-Meteo's wall-clock "now" for that location (timezone=auto), not
+    // the browser's, so a traveler in a different timezone still gets the
+    // right hour's precipitation probability instead of their home hour's.
+    const currentHour = Number(data.current.time?.slice(11, 13)) || 0;
+    const c = data.current;
+    return buildWeather({
+        temperature: c.temperature_2m,
+        humidity: c.relative_humidity_2m,
+        precipitation: c.precipitation,
+        precipitationProbability: data.hourly?.precipitation_probability?.[currentHour] || 0,
+        weatherCode: c.weather_code,
+        windSpeed: c.wind_speed_10m,
+        windDirection: c.wind_direction_10m
+    }, parseSunTimes(data.daily, data.utc_offset_seconds || 0, 0));
+}
+
+/**
+ * Forecast for the first full hour after tomorrow's sunrise, plus tomorrow's sun times.
+ * Example: sunrise 06:50 -> uses the 07:00 hourly forecast.
+ */
+function tomorrowMorningWeather(data) {
+    const sunrise = data.daily?.sunrise?.[1];
+    const h = data.hourly || {};
+    const sunriseHour = sunrise ? Number(sunrise.slice(11, 13)) : 6;
+    const sunriseMinute = sunrise ? Number(sunrise.slice(14, 16)) : 0;
+    const hour = sunriseMinute > 0 ? sunriseHour + 1 : sunriseHour;
+    const tomorrowDate = sunrise ? sunrise.slice(0, 10) : null;
+    let index = h.time ? h.time.findIndex(t => t.slice(0, 10) === tomorrowDate && Number(t.slice(11, 13)) === hour) : -1;
+    if (index < 0) {
+        index = 24 + hour;
+    }
+
+    return {
+        ...buildWeather({
+            temperature: h.temperature_2m?.[index],
+            humidity: h.relative_humidity_2m?.[index],
+            precipitation: null,
+            precipitationProbability: h.precipitation_probability?.[index] || 0,
+            weatherCode: h.weather_code?.[index],
+            windSpeed: h.wind_speed_10m?.[index],
+            windDirection: h.wind_direction_10m?.[index]
+        }, parseSunTimes(data.daily, data.utc_offset_seconds || 0, 1)),
+        forTomorrow: true,
+        forecastLabel: 'Tomorrow morning'
+    };
+}
+
+/**
+ * Shape raw values into the weather object the UI expects.
+ */
+function buildWeather(v, sunData) {
+    const weatherInfo = getWeatherInfo(v.weatherCode);
+    return {
+        temperatureC: Math.round(v.temperature),
+        temperatureF: celsiusToFahrenheit(v.temperature),
+        humidity: Math.round(v.humidity),
+        precipitation: v.precipitation,
+        precipitationProbability: v.precipitationProbability,
+        weatherCode: v.weatherCode,
+        description: weatherInfo.description,
+        icon: weatherInfo.icon,
+        condition: weatherInfo.condition,
+        windSpeedKmh: Math.round(v.windSpeed),
+        windSpeedMph: kmhToMph(v.windSpeed),
+        windDirection: getWindDirection(v.windDirection),
+        windDirectionDegrees: v.windDirection,
+        ...sunData
+    };
 }
 
 /**
@@ -416,6 +473,11 @@ export function getOverallBirdingConditions(weatherDataArray) {
     } else {
         rating = 'poor';
         message = 'Challenging birding conditions today';
+    }
+
+    // After sunset the data describes tomorrow morning; say so
+    if (validData.every(w => w.forTomorrow)) {
+        message = message.replace(' today', ' tomorrow morning').replace(/^Fair birding conditions/, 'Fair birding conditions tomorrow morning');
     }
 
     return { rating, message, score: Math.round(avgScore) };

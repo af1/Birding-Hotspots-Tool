@@ -115,3 +115,44 @@ export async function testGoldenHourStatusMidday() {
     });
     assert(status === null, `Expected null (midday), got '${status}'`);
 }
+
+// After sunset, weather describes tomorrow morning (the next time anyone goes birding)
+function twoDayResponse(currentTimeLocal) {
+    const hours = Array.from({ length: 48 }, (_, i) => i);
+    return {
+        utc_offset_seconds: -5 * 3600,
+        current: { time: `2026-11-19T${currentTimeLocal}`, temperature_2m: 2, relative_humidity_2m: 80, precipitation: 0, weather_code: 3, wind_speed_10m: 20, wind_direction_10m: 0 },
+        hourly: {
+            time: hours.map(i => `2026-11-${i < 24 ? 19 : 20}T${String(i % 24).padStart(2, '0')}:00`),
+            temperature_2m: hours.map(i => i),               // value === index, for easy assertion
+            relative_humidity_2m: hours.map(() => 60),
+            precipitation_probability: hours.map(i => i),
+            weather_code: hours.map(() => 0),
+            wind_speed_10m: hours.map(() => 8),
+            wind_direction_10m: hours.map(() => 270)
+        },
+        daily: {
+            sunrise: ['2026-11-19T06:49', '2026-11-20T06:50'],
+            sunset: ['2026-11-19T16:30', '2026-11-20T16:29']
+        }
+    };
+}
+
+export async function testAfterSunsetShowsTomorrowMorning() {
+    for (const k of Object.keys(_store)) delete _store[k];
+    installFetchMock(twoDayResponse('19:00'));
+    const weather = await getWeatherForLocation(42.65, -73.75);
+    assert(weather.forTomorrow === true, 'After sunset the forecast should be for tomorrow');
+    assert(weather.sunrise === '6:50 AM', `Expected tomorrow's sunrise, got ${weather.sunrise}`);
+    // First full hour after tomorrow's 6:50 sunrise is 07:00 = hourly index 31
+    assert(weather.temperatureC === 31, `Expected tomorrow 7 AM temperature (31), got ${weather.temperatureC}`);
+    assert(weather.forecastLabel === 'Tomorrow morning', `Unexpected label ${weather.forecastLabel}`);
+}
+
+export async function testBeforeSunsetShowsNow() {
+    for (const k of Object.keys(_store)) delete _store[k];
+    installFetchMock(twoDayResponse('11:00'));
+    const weather = await getWeatherForLocation(42.66, -73.76);
+    assert(!weather.forTomorrow, 'Daytime forecast should describe now');
+    assert(weather.temperatureC === 2, `Expected current temperature 2, got ${weather.temperatureC}`);
+}
