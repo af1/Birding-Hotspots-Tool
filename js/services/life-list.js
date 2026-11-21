@@ -400,13 +400,15 @@ export class LifeListService {
  */
 export function collectLifersAcrossHotspots(hotspots) {
     const liferMap = new Map();
+
+    // Drive time when known, else straight-line km scaled to comparable seconds (~60 km/h)
+    const reach = h => h.drivingDuration ?? (h.distance != null ? h.distance * 60 : Infinity);
+
     for (const hotspot of hotspots || []) {
         for (const bird of hotspot.birds || []) {
             if (!bird.isLifer) continue;
             const existing = liferMap.get(bird.speciesCode);
-            if (existing) {
-                existing.hotspotCount++;
-            } else {
+            if (!existing) {
                 liferMap.set(bird.speciesCode, {
                     comName: bird.comName,
                     sciName: bird.sciName,
@@ -414,8 +416,30 @@ export function collectLifersAcrossHotspots(hotspots) {
                     lastSeen: bird.lastSeen,
                     confidence: bird.confidence,
                     hotspotName: hotspot.name,
+                    nearestHotspotName: hotspot.name,
+                    nearestDistance: hotspot.drivingDistance ?? hotspot.distance ?? null,
+                    nearestDuration: hotspot.drivingDuration ?? null,
+                    nearestReach: reach(hotspot),
                     hotspotCount: 1
                 });
+                continue;
+            }
+
+            existing.hotspotCount++;
+
+            // Freshest sighting wins the "seen at" hotspot
+            if (new Date(bird.lastSeen) > new Date(existing.lastSeen)) {
+                existing.lastSeen = bird.lastSeen;
+                existing.confidence = bird.confidence;
+                existing.hotspotName = hotspot.name;
+            }
+
+            // Closest hotspot is tracked separately for distance sorting
+            if (reach(hotspot) < existing.nearestReach) {
+                existing.nearestHotspotName = hotspot.name;
+                existing.nearestDistance = hotspot.drivingDistance ?? hotspot.distance ?? null;
+                existing.nearestDuration = hotspot.drivingDuration ?? null;
+                existing.nearestReach = reach(hotspot);
             }
         }
     }

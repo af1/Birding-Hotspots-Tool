@@ -7422,3 +7422,36 @@ details.about-section[open] .about-chevron {
     font-size: 0.8rem;
     color: var(--text-secondary);
 }
+
+/* Recent | Nearest switch in alert panel headers */
+.sort-switch {
+    display: inline-flex;
+    margin-left: auto;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+.sort-switch button {
+    padding: 3px 10px;
+    border: 0;
+    background: none;
+    color: var(--text-secondary);
+    font: inherit;
+    font-size: 0.75rem;
+    cursor: pointer;
+}
+
+.sort-switch button + button {
+    border-left: 1px solid var(--border-color);
+}
+
+.sort-switch button[aria-pressed="true"] {
+    background: var(--primary-color);
+    color: #FFFFFF;
+}
+
+.sort-switch button:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: -2px;
+}

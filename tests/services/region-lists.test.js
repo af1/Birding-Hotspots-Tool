@@ -55,3 +55,20 @@ export async function testRegionContainsHotspot() {
     assert(!regionContains(county, inSchenectady), 'Schenectady hotspot is not in Albany');
     assert(regionContains(aba, inSchenectady), 'NY is in the ABA Area');
 }
+
+// eBird counts "Rock Pigeon (Feral Pigeon)" as Rock Pigeon; other domestic types never count
+export async function testFeralPigeonCountsAsRockPigeon() {
+    const csv = [
+        HEADER,
+        'S9,Rock Pigeon (Feral Pigeon),Columba livia (Feral Pigeon),1,1,US-NY,Albany,L1,Downtown',
+        'S10,Mallard (Domestic type),Anas platyrhynchos (Domestic type),2,1,US-NY,Albany,L1,Pond'
+    ].join('\n');
+    const taxonomy = [
+        { comName: 'Rock Pigeon (Feral Pigeon)', sciName: 'Columba livia (Feral Pigeon)', speciesCode: 'rocpig1', category: 'domestic', reportAs: 'rocpig' },
+        { comName: 'Mallard (Domestic type)', sciName: 'Anas platyrhynchos (Domestic type)', speciesCode: 'mallar2', category: 'domestic', reportAs: 'mallar3' }
+    ];
+    const { lists } = parseEbirdData(csv, taxonomy);
+    const world = lists.get('world');
+    assert(world && world.codes.has('rocpig'), 'Feral Pigeon sighting should put Rock Pigeon on the list');
+    assert(!world.codes.has('mallar3'), 'Domestic Mallard must not count as Mallard');
+}

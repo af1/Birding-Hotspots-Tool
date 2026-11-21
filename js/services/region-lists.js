@@ -33,6 +33,10 @@ const ABA_COUNTRIES = new Set(['US', 'CA', 'PM']);
 // Taxa that never count toward a list (e.g. "gull sp.", "Mallard x Black Duck")
 const UNCOUNTABLE_CATEGORIES = new Set(['spuh', 'slash', 'hybrid', 'domestic']);
 
+// Domestic-category taxa eBird still counts as their species:
+// "Rock Pigeon (Feral Pigeon)" -> Rock Pigeon
+const COUNTABLE_DOMESTIC = new Set(['rocpig1']);
+
 const COLUMN = Object.freeze({
     COMMON: 'common name',
     SCIENTIFIC: 'scientific name',
@@ -80,7 +84,7 @@ function resolveSpecies(commonName, sciName, byCommon, bySci) {
     if (!taxon) {
         return { code: null, name: commonName.toLowerCase() };
     }
-    if (UNCOUNTABLE_CATEGORIES.has(taxon.category)) {
+    if (UNCOUNTABLE_CATEGORIES.has(taxon.category) && !COUNTABLE_DOMESTIC.has(taxon.speciesCode)) {
         return null;
     }
     return { code: taxon.reportAs || taxon.speciesCode, name: taxon.comName.toLowerCase() };

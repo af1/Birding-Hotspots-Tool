@@ -3756,9 +3756,16 @@ class BirdingHotspotsApp {
             return;
         }
 
-        // Sort by most recent
-        const sorted = [...this.notableObservations]
-            .sort((a, b) => new Date(b.obsDt) - new Date(a.obsDt));
+        // Recent: newest first. Nearest: straight-line distance from the search origin.
+        const origin = this.currentResults?.origin || this.currentLocation;
+        const byNearest = this.rareSortMode === 'nearest' && origin;
+        const withDistance = this.notableObservations.map(obs => ({
+            ...obs,
+            distanceKm: origin ? calculateDistance(origin.lat, origin.lng, obs.lat, obs.lng) : null
+        }));
+        const sorted = byNearest
+            ? withDistance.sort((a, b) => a.distanceKm - b.distanceKm)
+            : withDistance.sort((a, b) => new Date(b.obsDt) - new Date(a.obsDt));
 
         // Show first 5 in preview, rest hidden
         const previewCount = 5;
@@ -3788,6 +3795,10 @@ class BirdingHotspotsApp {
         header.appendChild(iconSpan);
         header.appendChild(title);
         header.appendChild(count);
+        header.appendChild(this.createSortSwitch(byNearest ? 'nearest' : 'recent', mode => {
+            this.rareSortMode = mode;
+            this.renderRareBirdAlert();
+        }));
 
         // List
         const list = document.createElement('ul');
@@ -3806,7 +3817,7 @@ class BirdingHotspotsApp {
 
             const date = document.createElement('span');
             date.className = 'rare-alert-date';
-            date.textContent = `(${this.formatRelativeDate(obs.obsDt)})`;
+            date.textContent = byNearest ? `(${formatDistance(obs.distanceKm)} away)` : `(${this.formatRelativeDate(obs.obsDt)})`;
 
             li.appendChild(strong);
             li.appendChild(location);
@@ -3836,7 +3847,7 @@ class BirdingHotspotsApp {
 
                 const date = document.createElement('span');
                 date.className = 'rare-alert-date';
-                date.textContent = `(${this.formatRelativeDate(obs.obsDt)})`;
+                date.textContent = byNearest ? `(${formatDistance(obs.distanceKm)} away)` : `(${this.formatRelativeDate(obs.obsDt)})`;
 
                 li.appendChild(strong);
                 li.appendChild(location);
@@ -3896,9 +3907,11 @@ class BirdingHotspotsApp {
             return;
         }
 
-        // Show the freshest sightings first so the "+N more" cutoff doesn't
-        // hide a lifer seen today behind ones seen weeks ago.
-        const sortedLifers = sortBirdsByRecency(lifers);
+        // Recent: freshest sighting first. Nearest: closest hotspot first.
+        const byNearest = this.liferSortMode === 'nearest';
+        const sortedLifers = byNearest
+            ? [...lifers].sort((a, b) => a.nearestReach - b.nearestReach)
+            : sortBirdsByRecency(lifers);
         const label = this.getLifeListLabel();
 
         // Show first 5 in preview, rest hidden
@@ -3940,6 +3953,10 @@ class BirdingHotspotsApp {
         header.appendChild(title);
         header.appendChild(copyBtn);
         header.appendChild(count);
+        header.appendChild(this.createSortSwitch(byNearest ? 'nearest' : 'recent', mode => {
+            this.liferSortMode = mode;
+            this.renderLiferAlert(hotspots);
+        }));
 
         const makeLiferItem = (lifer) => {
             const li = document.createElement('li');
@@ -3950,7 +3967,7 @@ class BirdingHotspotsApp {
 
             const location = document.createElement('span');
             location.className = 'lifer-alert-location';
-            location.textContent = ` at ${lifer.hotspotName}`;
+            location.textContent = ` at ${byNearest ? lifer.nearestHotspotName : lifer.hotspotName}`;
 
             li.appendChild(strong);
             li.appendChild(location);
@@ -3962,9 +3979,12 @@ class BirdingHotspotsApp {
                 li.appendChild(more);
             }
 
+            // Nearest mode shows how far; recent mode shows how fresh
             const date = document.createElement('span');
             date.className = 'lifer-alert-date';
-            date.textContent = ` (${this.formatRelativeDate(lifer.lastSeen)})`;
+            date.textContent = byNearest
+                ? ` (${this.formatReach(lifer.nearestDuration, lifer.nearestDistance)})`
+                : ` (${this.formatRelativeDate(lifer.lastSeen)})`;
             li.appendChild(date);
             return li;
         };
@@ -4013,6 +4033,39 @@ class BirdingHotspotsApp {
 
         container.appendChild(alert);
         container.classList.remove('hidden');
+    }
+
+    /**
+     * Two-option switch: Recent | Nearest. Calls onChange with the picked mode.
+     */
+    createSortSwitch(current, onChange) {
+        const group = document.createElement('div');
+        group.className = 'sort-switch';
+        group.setAttribute('role', 'group');
+        group.setAttribute('aria-label', 'Sort list');
+        for (const [mode, label] of [['recent', 'Recent'], ['nearest', 'Nearest']]) {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.textContent = label;
+            btn.setAttribute('aria-pressed', String(mode === current));
+            btn.addEventListener('click', () => {
+                if (mode !== current) {
+                    onChange(mode);
+                }
+            });
+            group.appendChild(btn);
+        }
+        return group;
+    }
+
+    /**
+     * "25 min drive" when drive time is known, else "12 mi"
+     */
+    formatReach(durationSec, distanceKm) {
+        if (durationSec != null) {
+            return `${formatDuration(durationSec)} drive`;
+        }
+        return distanceKm != null ? formatDistance(distanceKm) : 'distance unknown';
     }
 
     /**

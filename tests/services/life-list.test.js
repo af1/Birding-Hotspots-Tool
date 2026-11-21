@@ -199,3 +199,17 @@ export async function testImportFromCSVReportsHeaderWhenRowsHaveNoNames() {
     assert(result.rows === 2, `Expected 2 blank data rows counted, got ${result.rows}`);
     assert(result.header.join(',') === 'Common Name,Scientific Name', `Header should be reported, got ${result.header}`);
 }
+
+// Each lifer remembers its freshest sighting and its nearest hotspot separately
+export async function testCollectLifersTracksFreshestAndNearest() {
+    const { collectLifersAcrossHotspots } = await import('../../js/services/life-list.js');
+    const lifer = (lastSeen) => ({ speciesCode: 'blksco', comName: 'Black Scoter', isLifer: true, lastSeen });
+    const [result] = collectLifersAcrossHotspots([
+        { name: 'Far but fresh', distance: 80, drivingDuration: 5400, birds: [lifer('2026-11-19 08:00')] },
+        { name: 'Near but old', distance: 5, drivingDuration: 600, birds: [lifer('2026-11-01 08:00')] }
+    ]);
+    assert(result.hotspotName === 'Far but fresh', `Freshest sighting hotspot expected, got ${result.hotspotName}`);
+    assert(result.lastSeen === '2026-11-19 08:00', 'lastSeen should be the freshest sighting');
+    assert(result.nearestHotspotName === 'Near but old', `Nearest hotspot expected, got ${result.nearestHotspotName}`);
+    assert(result.nearestDuration === 600 && result.hotspotCount === 2, 'Nearest drive time and hotspot count tracked');
+}
